@@ -1,0 +1,25 @@
+.home-page-wrapper {
+  .p-splitter {
+    border: 1px solid #d3d5d7;
+    .p-splitter-panel {
+      .ant-tabs-nav-wrap {
+        display: flex;
+        justify-content: center;
+      }
+    }
+  }
+  .p-splitter-gutter {
+    background-color: #d3d5d7;
+  }
+  .list-tabs {
+    .ant-tabs  {
+      .ant-tabs-nav-list {
+        display: flex;
+        flex-wrap: wrap;
+      }
+    }
+  }
+  .p-tabview-panels {
+    padding: 8px !important;
+  }
+}

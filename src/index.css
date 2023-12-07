@@ -1,0 +1,34 @@
+
+@font-face {
+    font-family: 'SFPro-Light';
+    font-weight: 300;
+    src: local('SFPro-Light'), url(./assets/fonts/sf_light.otf) format('opentype');
+}
+
+@font-face {
+    font-family: 'SFPro';
+    font-weight: normal;
+    src: local('SFPro'), url(./assets/fonts/sf_regular.otf) format('opentype');
+}
+
+@font-face {
+    font-family: 'SFPro-SemiBold';
+    font-weight: 600;
+    src: local('SFPro-SemiBold'), url(./assets/fonts/sf_semi_bold.otf) format('opentype');
+}
+
+@font-face {
+    font-family: 'SFPro-Bold';
+    font-weight: bold;
+    src: local('SFPro-Bold'), url(./assets/fonts/sf_bold.otf) format('opentype');
+}
+
+body,
+html {
+    font-family: 'SFPro', sans-serif;
+}
+
+body {
+    padding: 0;
+    margin: 0;
+}

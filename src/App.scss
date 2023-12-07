@@ -1,0 +1,15 @@
+@import "/node_modules/primeflex/primeflex.css";
+@import "primereact/resources/themes/lara-light-cyan/theme.css";
+@import 'primeicons/primeicons.css';
+
+#root {
+  font-size: 14px;
+  color: #0F1824;
+  font-weight: 400;
+}
+.p-tooltip {
+  font-size: 12px;
+  .p-tooltip-text {
+    padding: 6px !important;
+  }
+}

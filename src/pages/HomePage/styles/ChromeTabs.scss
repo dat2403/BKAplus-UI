@@ -1,0 +1,48 @@
+.chrome-tab-wrapper {
+  width: 100%;
+  .header {
+    font-size: 16px;
+    height: 36px;
+    background: #08f;
+    color: #fff;
+    padding: 4px 12px;
+    display: flex;
+    align-items: center;
+  }
+  .contents {
+    .top-content {
+      display: flex;
+      justify-content: space-between;
+      padding: 0 8px;
+      border-bottom: 1px solid #d3d5d7;
+      .list-actions {
+        display: flex;
+        height: 36px;
+        align-items: center;
+        .btn {
+          cursor: pointer;
+          margin-right: 8px;
+          padding: 2px;
+          &:hover {
+            background-color: #08f;
+            border-radius: 4px;
+            color: #fff;
+          }
+          &.delete {
+            color: #ff4d4d;
+            &:hover {
+              background-color: #ff4d4d;
+              color: #fff;
+            }
+          }
+        }
+      }
+      .count-text {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        font-size: 13px;
+      }
+    }
+  }
+}
