@@ -1,110 +1,50 @@
+import { InputText } from "primereact/inputtext";
 import React, { useState } from "react";
-import useAuth from "../../hooks/useAuth.ts";
-import { Button } from "primereact/button";
-import Assets from "../../assets/Assets.ts";
-import { Avatar } from "primereact/avatar";
-import "./styles/HomePage.scss";
-import Scaffold, { TypeLoading } from "../../shared/components/Scaffold/Scaffold.tsx";
-import usePageState from "../../hooks/usePageState.ts";
-import useModal, { CloseModal } from "../../hooks/useModal.ts";
-import { Dialog } from "primereact/dialog";
-import { Input } from "antd";
-import { AppToastRef } from "../../App.tsx";
+import "./HomePage.scss";
+import { useMockData } from "../../shared/utility/useMockData";
+
 
 const HomePage: React.FC = () => {
-  const { signOut, user, updateUser } = useAuth();
-  const { isLoading, setLoading, repository } = usePageState();
-  const { modalNode, openModal } = useModal();
+  const { mostSearchSubject, mayYouCareCourses } = useMockData();
+  return <div className="home-page-wrapper">
+    <span className="p-input-icon-right search-box-container">
+      <i className="pi pi-search" />
+      <InputText placeholder="Tìm kiếm các khóa học, sách hoặc tài liệu" />
+    </span>
 
-  return (
-    <>
-      <Scaffold
-        isLoading={isLoading}
-        typeLoading={TypeLoading.OVERLAY}>
-        <div className="home-page-wrapper">
-          <div
-            className={"flex flex-row p-3"}
-            style={{
-              alignItems: "center"
-            }}
-          >
-            <img
-              src={Assets.icAccton}
-              style={{
-                height: 60
-              }}
-              alt={""}
-            />
-
-            <div className={"flex-1"} />
-
-            <Avatar label="A" shape="circle" />
-
-            <p
-              style={{
-                padding: 4
-              }}
-            >{`Hello, ${user?.username}`}</p>
-
-            <Button
-              style={{
-                padding: 4
-              }}
-              onClick={() => {
-                signOut();
-              }}
-            >
-              Log out
-            </Button>
+    <div className="list">
+      <div className="list-title">Học phần hay được tìm kiếm</div>
+      {mostSearchSubject().map(subject => {
+        return <div key={subject.title} className="list-item-wrapper">
+          <i className="pi pi-folder"></i>
+          <div className="item-right">
+            {subject.title}
+            <i className="pi pi-chevron-right" style={{ fontSize: "14px" }}></i>
           </div>
+        </div>;
+      })}
+    </div>
+    <div className="list-course">
+      <div className="title-container">
+        <div className="list-title">Có thể bạn quan tâm</div>
+        <div className="view-all">Xem tất cả
+          <i style={{ fontSize: "12px" }} className="pi pi-chevron-right"></i>
         </div>
-        <div>
-          <Button onClick={async () => {
-            const result = await openModal<UpdateNameDialogData>(close => {
-              return <Dialog visible header={"Update username"} onHide={close}>
-                <UpdateNameDialog close={close} />
-              </Dialog>;
-            });
+      </div>
 
-            updateUser({
-              username: result?.user_name
-            });
-
-            AppToastRef.current?.show({
-              severity: "success",
-              detail: `Change to ${result?.user_name}`
-            });
-          }}>Update username using model</Button>
-        </div>
-
-
-      </Scaffold>
-      {modalNode}
-    </>
-  );
+      <div className="list-course-content">
+        {mayYouCareCourses.map(course => {
+          return <div className="course-card">
+            <img src={course.imageUrl} alt="course-img" className="course-image" />
+            <div className="course-content">
+              <div className="title">{course.title}</div>
+              <div className="description">{course.description}</div>
+            </div>
+          </div>;
+        })}
+      </div>
+    </div>
+  </div>;
 };
 
 export default HomePage;
-
-interface UpdateNameModelProps<OutData> {
-  close: CloseModal<OutData>;
-}
-
-interface UpdateNameDialogData {
-  user_name: string;
-}
-
-const UpdateNameDialog: React.FC<UpdateNameModelProps<UpdateNameDialogData>> = (props) => {
-  const { close } = props;
-  const { user } = useAuth();
-  const [username, setUsername] = useState(user?.username || "");
-  return <div className={"flex flex-column gap-2"}>
-    <Input
-      value={username}
-      onChange={(e) => setUsername(e.target.value)}
-      placeholder={"Update user name"} />
-    <Button type={"submit"} label={"Update"} onClick={() => close({
-      user_name: username
-    })} />
-  </div>;
-};
