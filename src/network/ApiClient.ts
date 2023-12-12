@@ -1,6 +1,7 @@
 import axios, { AxiosError, AxiosRequestConfig } from "axios";
 import BaseResponse from "./models/BaseResponse.ts";
 import { errorLogger, requestLogger, responseLogger } from "./interceptors/Logger.ts";
+import AppConfig from "../shared/config/AppConfig.ts";
 
 export default class ApiClient {
   private static apiClient: ApiClient | undefined = undefined;
@@ -13,18 +14,21 @@ export default class ApiClient {
   }
 
   private axiosClient = axios.create({
-    // baseURL: "http://localhost:9090",
-    baseURL: "http://localhost:4968",
+    baseURL: AppConfig.baseURL,
     responseType: "json",
     timeout: 3000,
     headers: {
-      Accept: "application/json",
-      "Content-Type": "application/json",
-    },
+      "Accept": "application/json",
+      "Content-Type": "application/json"
+    }
   });
 
+  private showApiLog = !AppConfig.isProduction;
+
   private constructor() {
-    this.setLoggerAxios();
+    if (this.showApiLog) {
+      this.setLoggerAxios();
+    }
   }
 
   private setLoggerAxios() {
@@ -39,11 +43,15 @@ export default class ApiClient {
 
   public handleOnUnauthorized(onUnauthorized: () => void) {
     this.axiosClient.interceptors.response.use(
-      (config) => {
+      config => {
+        if (config.data?.code === 401 || config.status === 401) {
+          onUnauthorized();
+        }
         return config;
       },
-      (error) => {
+      error => {
         if (error.isAxiosError) {
+          console.error(error);
           if (error.response?.code === 401) {
             onUnauthorized();
           }
@@ -51,7 +59,7 @@ export default class ApiClient {
           console.error("Not axios error", error);
         }
         return Promise.reject(error);
-      },
+      }
     );
   }
 
@@ -62,27 +70,22 @@ export default class ApiClient {
       if (e instanceof AxiosError) {
         return {
           code: e.response?.data?.code || 600,
-          message: e.message,
+          message: e.response?.data?.message || e.message
         };
       }
-
       return {
         code: 600,
-        message: "An error occurred",
+        message: "An error occurred"
       };
     }
   }
 
-  post<T, Data = any>(
-    url: string,
-    data?: Data,
-    config?: AxiosRequestConfig<Data>,
-  ): Promise<BaseResponse<T>> {
+  post<T, Data = any>(url: string, data?: Data, config?: AxiosRequestConfig<Data>): Promise<BaseResponse<T>> {
     return this.request({
       ...config,
       url,
       data,
-      method: "POST",
+      method: "POST"
     });
   }
 
@@ -90,7 +93,7 @@ export default class ApiClient {
     return this.request({
       ...config,
       url,
-      method: "GET",
+      method: "GET"
     });
   }
 
@@ -98,7 +101,7 @@ export default class ApiClient {
     return this.request({
       ...config,
       url,
-      method: "DELETE",
+      method: "DELETE"
     });
   }
 }

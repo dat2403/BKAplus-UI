@@ -1,7 +1,7 @@
 import UserModel from "./UserModel.ts";
 
 export interface LoginModelRequest {
-  phone_number: string;
+  email: string;
   password: string;
 }
 
