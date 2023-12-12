@@ -13,6 +13,7 @@ import { Avatar } from "primereact/avatar";
 import usePageState from "../../hooks/usePageState.ts";
 import Scaffold, { TypeLoading } from "../../shared/components/Scaffold/Scaffold.tsx";
 import { useUtils } from "../../shared/utility/Util.ts";
+import { useParams } from "react-router-dom";
 
 const DocDetailsPage: React.FC = () => {
   const items = [{ label: "SOICT" }, { label: "Lập trình mạng" }];
@@ -20,6 +21,7 @@ const DocDetailsPage: React.FC = () => {
   const defaultLayoutPluginInstance = defaultLayoutPlugin();
   const { isLoading, setLoading, repository } = usePageState();
   const [data, setData] = useState<any>();
+  const params = useParams()
 
   const { formatUtcDateString, getCurrentDate } = useUtils()
 
@@ -33,8 +35,10 @@ const DocDetailsPage: React.FC = () => {
   const fetchDocDetailsData = async () => {
     try {
       setLoading(true);
-      const res = await repository.getDocDetails("14");
-      setData(res?.data)
+      if (params?.docId) {
+        const res = await repository.getDocDetails(params?.docId);
+        setData(res?.data)
+      }
     } catch (e) {
     } finally {
       setLoading(false);
@@ -104,7 +108,7 @@ const DocDetailsPage: React.FC = () => {
                     severity="success"
                     aria-label="Like"
                   />
-                  <div className="like-text">1999</div>
+                  <div className="like-text">100</div>
                 </div>
                 <div className="react-button">
                   <Button
@@ -113,7 +117,7 @@ const DocDetailsPage: React.FC = () => {
                     severity="danger"
                     aria-label="Like"
                   />
-                  <div className="dislike-text">200</div>
+                  <div className="dislike-text">0</div>
                 </div>
               </div>
             </div>
@@ -177,7 +181,7 @@ const DocDetailsPage: React.FC = () => {
                       severity="success"
                       aria-label="Like"
                     />
-                    <div className="like-text">1999</div>
+                    <div className="like-text">100</div>
                   </div>
                   <div className="react-button">
                     <Button
@@ -186,7 +190,7 @@ const DocDetailsPage: React.FC = () => {
                       severity="danger"
                       aria-label="Like"
                     />
-                    <div className="dislike-text">200</div>
+                    <div className="dislike-text">0</div>
                   </div>
                 </div>
                 <div className="feedback">

@@ -10,7 +10,7 @@ export const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 export type HtmlProps<T> = React.DetailedHTMLProps<React.HTMLAttributes<T>, T>;
 
 export const useUtils = () => {
-  const getPercentageOfLikes = (liked: number, disliked: number): number => {
+  const getPercentageOfLikes = (liked: number = 100, disliked: number = 0): number => {
     return Math.floor((liked / (liked + disliked)) * 100);
   };
 
