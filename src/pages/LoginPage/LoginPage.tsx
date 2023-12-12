@@ -27,44 +27,28 @@ interface Company {
 const LoginPage: React.FC = () => {
   const { signIn } = useAuth();
   const form = Form.useFormInstance<LoginFormValue>();
-  const { isLoading, setLoading, repository } = usePageState();
+  const { isLoading, setLoading, repository, showSuccess, showError } = usePageState();
 
   async function _login(request: LoginModelRequest) {
     try {
       setLoading(true);
-      await sleep(2000);
       const res = await repository.login(request);
       if (res.data) {
-        AppToastRef?.current?.show({ severity: "success", detail: "Login success" });
+        showSuccess(res.message);
         signIn(res.data);
       } else {
-        // // todo: remove fake data
-        // AppToastRef?.current?.show({ severity: "success", detail: "Login success" });
-        // signIn({
-        //   username: {
-        //
-        //   },
-        //   access_token:
-        //     "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJNYXJjb19EdW9uZyIsImp0aSI6IjEiLCJhdXRoLXJvbGUiOiIiLCJVU0VSX0lEX0tFWSI6MSwiaWF0IjoxNzAxMTM5MTM5LCJleHAiOjE3MDExNzUxMzl9.iGm1d_op9Ej4i8lutry-VuXpI_nD8lwd1mA-MyncFVAc6fjM9g4ZQXbOJpQSdxU7mjCx4_fPZuWp0lvSSvqRWg",
-        // });
+        showError(res.message)
       }
-    } catch (e) {
     } finally {
       setLoading(false);
     }
   }
 
   const onFinish = (values: LoginFormValue) => {
-    // sign in
     return _login({
-      phone_number: values.username,
+      email: values.username,
       password: values.password,
     });
-  };
-
-  const handleCompanyChange = (_: string, option: Company | Company[]) => {
-    // @ts-ignore
-    setCompany(option);
   };
 
   return (
