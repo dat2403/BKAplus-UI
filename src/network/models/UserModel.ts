@@ -1,5 +1,5 @@
 export default interface UserModel {
-  username: User;
+  user: User;
   access_token: string;
 }
 

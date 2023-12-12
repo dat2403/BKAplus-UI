@@ -17,7 +17,7 @@ interface ISideNavButton {
 const SideNavigationBar = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { signOut } = useAuth();
+  const { signOut, user } = useAuth();
 
   const menuLeft = useRef(null);
   const items = [
@@ -67,16 +67,17 @@ const SideNavigationBar = () => {
       <div className="side-nav-header">
         <div className="side-nav-profile">
           <Avatar
-            label="P"
+            label={user?.user?.full_name?.[0]?.toUpperCase()}
             size="xlarge"
             shape="circle"
+            image={user?.user?.avatar}
             onClick={(event) => menuLeft?.current?.toggle(event)}
             aria-controls="popup_menu_left"
             aria-haspopup
           />
           <Menu model={items} popup ref={menuLeft} id="popup_menu_left" />
           <div className="profile-text-container">
-            <div className="profile-name">ITSS Team</div>
+            <div className="profile-name">{user?.user?.full_name}</div>
             <div className="profile-school">
               <i className="pi pi-building"></i>
               HUST

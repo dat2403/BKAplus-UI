@@ -12,26 +12,29 @@ import { InputTextarea } from "primereact/inputtextarea";
 import { Avatar } from "primereact/avatar";
 import usePageState from "../../hooks/usePageState.ts";
 import Scaffold, { TypeLoading } from "../../shared/components/Scaffold/Scaffold.tsx";
+import { useUtils } from "../../shared/utility/Util.ts";
 
 const DocDetailsPage: React.FC = () => {
   const items = [{ label: "SOICT" }, { label: "Lập trình mạng" }];
   const home = { label: "Trang chủ", url: "/" };
   const defaultLayoutPluginInstance = defaultLayoutPlugin();
   const { isLoading, setLoading, repository } = usePageState();
-  // const [data, setData] = useState<any>();
+  const [data, setData] = useState<any>();
+
+  const { formatUtcDateString, getCurrentDate } = useUtils()
 
   const detailProperties = [
-    { key: "Môn học", value: "Mạng máy tính" },
-    { key: "Trường/Khoa", value: "Trường CNTT" },
-    { key: "Giangr viên", value: "La Thế Vinh" },
+    { key: "Môn học", value: data?.subject?.name },
+    { key: "Trường/Khoa", value: data?.lecturer?.school?.name },
+    { key: "Giảng viên", value: data?.lecturer?.name },
     { key: "Mô tả môn học", value: "" },
   ];
 
   const fetchDocDetailsData = async () => {
     try {
       setLoading(true);
-      const res = await repository.getDocDetails("12");
-      console.log(res);
+      const res = await repository.getDocDetails("14");
+      setData(res?.data)
     } catch (e) {
     } finally {
       setLoading(false);
@@ -82,8 +85,8 @@ const DocDetailsPage: React.FC = () => {
           <div className="doc-details-header">
             <div className="left-column">
               <div className="title-container">
-                <div className="title">Network programing</div>
-                <div className="create-download-times">Ngày tạo: 2023/10/04 - 123 lượt tải</div>
+                <div className="title">{data?.title}</div>
+                <div className="create-download-times">Ngày tạo: {formatUtcDateString(data?.createdAt)} - {data?.download_count} lượt tải</div>
                 <div className="favorite-share">
                   <div className="button-wrapper love">
                     <i className={"pi pi-heart"}></i>
@@ -145,9 +148,8 @@ const DocDetailsPage: React.FC = () => {
               <div className="tags-list-container">
                 <div className="list-title">Từ khóa</div>
                 <div className={"tags-container"}>
-                  <Chip label={"CNTT"} />
-                  <Chip label={"Network"} />
-                  <Chip label={"La The Vinh"} />
+                  {data?.categories?.map((cate: any) => (<Chip key={cate?.id} label={cate?.name} />
+                  ))}
                 </div>
               </div>
               <div className="doc-details-wrapper">
@@ -233,7 +235,7 @@ const DocDetailsPage: React.FC = () => {
                     severity="success"
                     aria-label="Like"
                   />
-                  <div className="created-time">Đăng tải ngày 23/10/2023</div>
+                  <div className="created-time">Đăng tải ngày {getCurrentDate()}</div>
                   <div className="content">Tài liệu tốt, giúp mình được 9 giữa kì</div>
                   <div className="who-liked">3 người đã thích</div>
                   <div className={"button-group"}>
@@ -258,7 +260,7 @@ const DocDetailsPage: React.FC = () => {
                     severity="success"
                     aria-label="Like"
                   />
-                  <div className="created-time">Đăng tải ngày 23/10/2023</div>
+                  <div className="created-time">Đăng tải ngày {getCurrentDate()}</div>
                   <div className="content">Tài liệu tốt, giúp mình được 9 giữa kì</div>
                   <div className="who-liked">3 người đã thích</div>
                   <div className={"button-group"}>
@@ -283,7 +285,7 @@ const DocDetailsPage: React.FC = () => {
                     severity="success"
                     aria-label="Like"
                   />
-                  <div className="created-time">Đăng tải ngày 23/10/2023</div>
+                  <div className="created-time">Đăng tải ngày {getCurrentDate()}</div>
                   <div className="content">Tài liệu tốt, giúp mình được 9 giữa kì</div>
                   <div className="who-liked">3 người đã thích</div>
                   <div className={"button-group"}>
@@ -308,7 +310,7 @@ const DocDetailsPage: React.FC = () => {
                     severity="success"
                     aria-label="Like"
                   />
-                  <div className="created-time">Đăng tải ngày 23/10/2023</div>
+                  <div className="created-time">Đăng tải ngày {getCurrentDate()}</div>
                   <div className="content">Tài liệu tốt, giúp mình được 9 giữa kì</div>
                   <div className="who-liked">3 người đã thích</div>
                   <div className={"button-group"}>
