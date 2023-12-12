@@ -1,21 +1,26 @@
 import ApiClient from "./ApiClient.ts";
-import {LoginModelRequest, LoginModelResponse} from "./models/LoginModelRequest.ts";
+import { LoginModelRequest, LoginModelResponse } from "./models/LoginModelRequest.ts";
 
 export default class ApiRepository {
   private axiosClient = ApiClient.getInstance();
 
-  private static instance: ApiRepository | undefined = undefined
-  private constructor() {
-  }
+  private static instance: ApiRepository | undefined = undefined;
+
+  private constructor() {}
+
   public static getInstance(): ApiRepository {
     if (!this.instance) {
       this.instance = new ApiRepository();
     }
 
-    return this.instance!
+    return this.instance!;
   }
 
   login(request: LoginModelRequest) {
-    return this.axiosClient.post<LoginModelResponse>("/api/accounts/login", request)
+    return this.axiosClient.post<LoginModelResponse>("/api/login", request);
+  }
+
+  getDocDetails(docId: string) {
+    return this.axiosClient.get(`/api/document/detail/${docId}`);
   }
 }
