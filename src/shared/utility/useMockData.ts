@@ -109,9 +109,13 @@ export const useMockData = () => {
     },
   ];
 
+  const defaultThumbnail = fakeDocumentThumbnail;
+
+
   return {
     mostSearchSubject,
     mayYouCareCourses,
     lastSeenDocuments,
+    defaultThumbnail
   };
 };

@@ -20,6 +20,10 @@ export default class ApiRepository {
     return this.axiosClient.post<LoginModelResponse>("/api/login", request);
   }
 
+  getAllDocs(page: number = 0, perPage: number = 5, name?: string) {
+    return this.axiosClient.get<any[]>(`/api/document/list/all`, { params: { page: page, per_page: perPage, name: name } });
+  }
+
   getDocDetails(docId: string) {
     return this.axiosClient.get(`/api/document/detail/${docId}`);
   }
