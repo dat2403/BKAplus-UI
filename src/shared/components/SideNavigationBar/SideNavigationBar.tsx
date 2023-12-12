@@ -19,7 +19,7 @@ const SideNavigationBar = () => {
   const location = useLocation();
   const { signOut, user } = useAuth();
 
-  const menuLeft = useRef(null);
+  const menuLeft = useRef<any>(null);
   const items = [
     {
       label: "Đăng xuất",
@@ -42,7 +42,7 @@ const SideNavigationBar = () => {
       iconName: "pi-book",
       isFocused: location.pathname.includes(AppRoute.SubjectDocs),
       onNavigate: () => {
-        navigate(`${AppRoute.SubjectDocs}/TruongCNTT/123456`);
+        navigate(`${AppRoute.SubjectDocs}/TruongCNTT/12`);
       },
     },
     {
@@ -71,7 +71,7 @@ const SideNavigationBar = () => {
             size="xlarge"
             shape="circle"
             image={user?.user?.avatar}
-            onClick={(event) => menuLeft?.current?.toggle(event)}
+            onClick={(event) => menuLeft?.current?.toggle?.(event)}
             aria-controls="popup_menu_left"
             aria-haspopup
           />
