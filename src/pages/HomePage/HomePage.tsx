@@ -4,10 +4,13 @@ import "./HomePage.scss";
 import { useMockData } from "../../shared/utility/useMockData";
 import { Chip } from "primereact/chip";
 import { useUtils } from "../../shared/utility/Util.ts";
+import { useNavigate } from "react-router-dom";
+import { AppRoute } from "../../models/enums/AppRoute.ts";
 
 const HomePage: React.FC = () => {
   const { mostSearchSubject, mayYouCareCourses, lastSeenDocuments } = useMockData();
   const { getPercentageOfLikes } = useUtils();
+  const navigate = useNavigate();
   return (
     <div className="home-page-wrapper">
       <span className="p-input-icon-right search-box-container">
@@ -41,7 +44,7 @@ const HomePage: React.FC = () => {
         <div className="list-course-content">
           {mayYouCareCourses.map((course) => {
             return (
-              <div className="course-card">
+              <div key={course.title} className="course-card">
                 <img src={course.imageUrl} alt="course-img" className="course-image" />
                 <div className="course-content">
                   <div className="title">{course.title}</div>
@@ -63,12 +66,18 @@ const HomePage: React.FC = () => {
         <div className="list-content">
           {lastSeenDocuments.map((doc) => {
             return (
-              <div key={doc.title} className="doc-card">
+              <div
+                key={doc.title}
+                className="doc-card"
+                onClick={() => {
+                  navigate(`${AppRoute.SubjectDocs}/TruongCNTT/123456`);
+                }}
+              >
                 <img className="thumbnail" src={doc.thumbnail} alt="last-seen-img" />
                 <div className="doc-text-content">
                   <div className="doc-title">{doc.title}</div>
                   <div className={"tags-container"}>
-                    {doc.tags?.slice(0, 2).map((tag) => <Chip label={tag} />)}
+                    {doc.tags?.slice(0, 2).map((tag, index) => <Chip key={index} label={tag} />)}
                   </div>
                 </div>
                 <div className="like-container">

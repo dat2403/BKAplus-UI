@@ -14,20 +14,21 @@ import usePageState from "../../hooks/usePageState.ts";
 import { sleep } from "../../shared/utility/Util.ts";
 
 interface LoginFormValue {
-  username: string,
-  password: string,
-  remember: boolean
+  username: string;
+  password: string;
+  remember: boolean;
 }
 
 interface Company {
-  value: string,
-  label: string,
+  value: string;
+  label: string;
 }
 
 const LoginPage: React.FC = () => {
   const { signIn } = useAuth();
   const form = Form.useFormInstance<LoginFormValue>();
   const { isLoading, setLoading, repository } = usePageState();
+
   async function _login(request: LoginModelRequest) {
     try {
       setLoading(true);
@@ -37,15 +38,17 @@ const LoginPage: React.FC = () => {
         AppToastRef?.current?.show({ severity: "success", detail: "Login success" });
         signIn(res.data);
       } else {
-        // todo: remove fake data
-        AppToastRef?.current?.show({ severity: "success", detail: "Login success" });
-        signIn({
-          username: "Chavis_Nguyen",
-          access_token: "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJNYXJjb19EdW9uZyIsImp0aSI6IjEiLCJhdXRoLXJvbGUiOiIiLCJVU0VSX0lEX0tFWSI6MSwiaWF0IjoxNzAxMTM5MTM5LCJleHAiOjE3MDExNzUxMzl9.iGm1d_op9Ej4i8lutry-VuXpI_nD8lwd1mA-MyncFVAc6fjM9g4ZQXbOJpQSdxU7mjCx4_fPZuWp0lvSSvqRWg"
-        });
+        // // todo: remove fake data
+        // AppToastRef?.current?.show({ severity: "success", detail: "Login success" });
+        // signIn({
+        //   username: {
+        //
+        //   },
+        //   access_token:
+        //     "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJNYXJjb19EdW9uZyIsImp0aSI6IjEiLCJhdXRoLXJvbGUiOiIiLCJVU0VSX0lEX0tFWSI6MSwiaWF0IjoxNzAxMTM5MTM5LCJleHAiOjE3MDExNzUxMzl9.iGm1d_op9Ej4i8lutry-VuXpI_nD8lwd1mA-MyncFVAc6fjM9g4ZQXbOJpQSdxU7mjCx4_fPZuWp0lvSSvqRWg",
+        // });
       }
     } catch (e) {
-
     } finally {
       setLoading(false);
     }
@@ -54,8 +57,8 @@ const LoginPage: React.FC = () => {
   const onFinish = (values: LoginFormValue) => {
     // sign in
     return _login({
-      user_name: values.username,
-      password: btoa(values.password),
+      phone_number: values.username,
+      password: values.password,
     });
   };
 
@@ -65,31 +68,33 @@ const LoginPage: React.FC = () => {
   };
 
   return (
-    <Scaffold
-      isLoading={isLoading}
-      typeLoading={TypeLoading.OVERLAY}>
-      <div style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        height: "100vh"
-      }}>
+    <Scaffold isLoading={isLoading} typeLoading={TypeLoading.OVERLAY}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          height: "100vh",
+        }}
+      >
         <div className={"pm-card"}>
           <img
             src={Assets.icAccton}
             style={{
               height: 110,
-              objectFit: "contain"
+              objectFit: "contain",
             }}
-            alt={""} />
+            alt={""}
+          />
           <Form
             form={form}
             name="normal_login"
             className="login-form"
             initialValues={{
-              remember: true
+              remember: true,
             }}
-            onFinish={onFinish}>
+            onFinish={onFinish}
+          >
             <h4>Email or Username</h4>
 
             <Form.Item
@@ -97,11 +102,14 @@ const LoginPage: React.FC = () => {
               rules={[
                 {
                   required: true,
-                  message: "Please input your Username!"
-                }
+                  message: "Please input your Username!",
+                },
               ]}
             >
-              <Input prefix={<UserOutlined className="site-form-item-icon" />} placeholder="Username" />
+              <Input
+                prefix={<UserOutlined className="site-form-item-icon" />}
+                placeholder="Username"
+              />
             </Form.Item>
 
             <h4>Password</h4>
@@ -111,8 +119,8 @@ const LoginPage: React.FC = () => {
               rules={[
                 {
                   required: true,
-                  message: "Please input your Password!"
-                }
+                  message: "Please input your Password!",
+                },
               ]}
             >
               <Input
@@ -142,16 +150,16 @@ const styles = Stylesheet.create({
     color: AppColors.colorWhite,
     height: "fit-content",
     fontWeight: "500",
-    fontSize: 14
+    fontSize: 14,
   },
   title1: {
     fontSize: 18,
-    fontWeight: 1
+    fontWeight: 1,
   },
   title2: {
     fontSize: 14,
-    fontWeight: "500"
-  }
+    fontWeight: "500",
+  },
 });
 
 export default LoginPage;
