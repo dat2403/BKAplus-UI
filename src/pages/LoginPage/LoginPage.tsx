@@ -62,14 +62,14 @@ const LoginPage: React.FC = () => {
         }}
       >
         <div className={"pm-card"}>
-          <img
+          {/* <img
             src={Assets.icAccton}
             style={{
               height: 110,
               objectFit: "contain",
             }}
             alt={""}
-          />
+          /> */}
           <Form
             form={form}
             name="normal_login"
@@ -79,7 +79,7 @@ const LoginPage: React.FC = () => {
             }}
             onFinish={onFinish}
           >
-            <h4>Email or Username</h4>
+            <h4>Email</h4>
 
             <Form.Item
               name="username"
@@ -92,7 +92,7 @@ const LoginPage: React.FC = () => {
             >
               <Input
                 prefix={<UserOutlined className="site-form-item-icon" />}
-                placeholder="Username"
+                placeholder="Email"
               />
             </Form.Item>
 
