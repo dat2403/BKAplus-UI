@@ -44,7 +44,7 @@ export default class ApiClient {
   public handleOnUnauthorized(onUnauthorized: () => void) {
     this.axiosClient.interceptors.response.use(
       config => {
-        if (config.data?.code === 401 || config.status === 401) {
+        if (config.data?.status_code === 401 || config.status === 401) {
           onUnauthorized();
         }
         return config;
@@ -52,7 +52,7 @@ export default class ApiClient {
       error => {
         if (error.isAxiosError) {
           console.error(error);
-          if (error.response?.code === 401) {
+          if (error.response?.data?.status_code === 401) {
             onUnauthorized();
           }
         } else {
@@ -69,12 +69,12 @@ export default class ApiClient {
     } catch (e) {
       if (e instanceof AxiosError) {
         return {
-          code: e.response?.data?.code || 600,
+          status_code: e.response?.data?.code || 600,
           message: e.response?.data?.message || e.message
         };
       }
       return {
-        code: 600,
+        status_code: 600,
         message: "An error occurred"
       };
     }
