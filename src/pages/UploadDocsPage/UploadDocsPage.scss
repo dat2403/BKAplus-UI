@@ -1,0 +1,44 @@
+.upload-doc-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  height: 100%;
+  min-height: 100vh;
+  flex: 1;
+  //background: yellow;
+  padding: 24px 80px 40px 80px;
+
+  .p-breadcrumb {
+    background: transparent;
+    padding: 0;
+    border: 0
+  }
+
+  .page-title {
+    color: var(--gray-600);
+  }
+
+  .step-container {
+    display: flex;
+    flex-direction: column;
+    margin-top: 60px;
+    width: 100%;
+    flex: 1;
+    align-self: center;
+
+    .step-content {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+
+    .action-button-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      align-self: center;
+    }
+  }
+
+
+}

@@ -95,7 +95,14 @@ const SideNavigationBar = () => {
           </div>
         </div>
 
-        <Button className="mt-5" label="Tải tài liệu" icon="pi pi-cloud-upload" />
+        <Button
+          className="mt-5"
+          label="Tải tài liệu"
+          icon="pi pi-cloud-upload"
+          onClick={() => {
+            navigate(AppRoute.UploadDocs);
+          }}
+        />
       </div>
 
       <div className="mt-5">
