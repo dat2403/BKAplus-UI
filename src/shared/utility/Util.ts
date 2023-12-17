@@ -1,9 +1,10 @@
 import React from "react";
-import * as dayjs from 'dayjs';
-import * as utc from 'dayjs/plugin/utc';
-import * as customParseFormat from 'dayjs/plugin/customParseFormat';
+import * as dayjs from "dayjs";
+import * as utc from "dayjs/plugin/utc";
+import * as customParseFormat from "dayjs/plugin/customParseFormat";
+
 dayjs.extend(utc);
-dayjs.extend(customParseFormat)
+dayjs.extend(customParseFormat);
 
 export const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
@@ -15,18 +16,29 @@ export const useUtils = () => {
   };
 
   const formatUtcDateString = (inputDate: string): string => {
-    const formattedDate = dayjs.utc(inputDate).format('DD/MM/YYYY');
+    const formattedDate = dayjs.utc(inputDate).format("DD/MM/YYYY");
     return formattedDate;
   };
 
   const getCurrentDate = () => {
     const now = dayjs();
     return dayjs(now).format("DD/MM/YYYY HH:mm").toString();
-  }
+  };
+
+  const calcFileSizeInMB = (fileSizeInBytes: number): number => {
+    // Convert bytes to megabytes
+    const fileSizeInMB = fileSizeInBytes / (1024 * 1024);
+
+    // Floor the result
+    const fileSizeInMBFloored = Math.floor(fileSizeInMB);
+
+    return fileSizeInMBFloored;
+  };
 
   return {
     getPercentageOfLikes,
     formatUtcDateString,
-    getCurrentDate
+    getCurrentDate,
+    calcFileSizeInMB,
   };
 };

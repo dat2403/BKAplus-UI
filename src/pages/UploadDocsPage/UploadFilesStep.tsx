@@ -1,27 +1,22 @@
 import React from "react";
 import "./UploadFilesStep.scss";
-import { FileUpload } from "primereact/fileupload";
+import { FileUpload, FileUploadSelectEvent } from "primereact/fileupload";
 import { Toast } from "primereact/toast";
-import { Button } from "primereact/button";
 import { Chip } from "primereact/chip";
+import { useAppDispatch, useAppSelector } from "../../store/Store.ts";
+import { updateSelectedFiles } from "../../store/slices/UploadFileSlice.ts";
 
 const UploadFilesStep: React.FC = () => {
   const toast = React.useRef<any>(null);
   const fileUploaderRef = React.useRef<FileUpload>(null);
-  const [currentFiles, setCurrentFiles] = React.useState<File[]>([]);
-  // const onUpload = () => {
-  //   toast.current?.show({ severity: "info", summary: "Success", detail: "File Uploaded" });
-  // };
+  const dispatch = useAppDispatch();
+  const { selectedFiles } = useAppSelector((state) => state.uploadFile);
 
-  const getCurrentFiles = () => {
-    const newCurrentFiles = fileUploaderRef.current?.getFiles();
-    console.log(newCurrentFiles);
-    if (newCurrentFiles) {
-      setCurrentFiles(newCurrentFiles);
+  React.useEffect(() => {
+    if (selectedFiles?.length > 0) {
+      fileUploaderRef?.current?.setFiles(selectedFiles);
     }
-    // return currentFiles;
-  };
-
+  }, []);
   const renderPreviewFile = (file: any): React.ReactNode => {
     return (
       <Chip
@@ -29,19 +24,25 @@ const UploadFilesStep: React.FC = () => {
         icon="pi pi-file"
         removable
         onRemove={() => {
-          const newCurrentFiles = currentFiles?.filter(
+          const newCurrentFiles = selectedFiles?.filter(
             (currentFile) => currentFile.name !== file.name,
           );
           fileUploaderRef.current?.setFiles(newCurrentFiles);
-          setCurrentFiles(newCurrentFiles);
+          dispatch(updateSelectedFiles(newCurrentFiles));
         }}
       />
     );
   };
 
+  const onFilesSelect = (event: FileUploadSelectEvent) => {
+    console.log("HTD", event.files);
+    dispatch(updateSelectedFiles(event.files));
+  };
+
   return (
     <div className="upload-file-step-container">
       <Toast ref={toast}></Toast>
+
       <FileUpload
         ref={fileUploaderRef}
         name="demo[]"
@@ -66,8 +67,8 @@ const UploadFilesStep: React.FC = () => {
         }}
         itemTemplate={renderPreviewFile}
         emptyTemplate={<div className="drag-and-drop-text">Hoặc kéo thả</div>}
+        onSelect={onFilesSelect}
       />
-      {/*<Button label={"Test"} onClick={getCurrentFiles} />*/}
     </div>
   );
 };
