@@ -2,4 +2,11 @@
   display: flex;
   align-items: center;
   min-height: 100vh;
+  flex-direction: column;
+
+  .main-layout-content {
+    display: flex;
+    align-items: center;
+    width: 100%;
+  }
 }

@@ -3,6 +3,7 @@ import "./MainLayout.scss";
 import SideNavigationBar from "../SideNavigationBar/SideNavigationBar.tsx";
 import { AppRoute } from "../../../models/enums/AppRoute.ts";
 import { useLocation } from "react-router-dom";
+import Header from "../Header/Header.tsx";
 
 interface IMainLayoutProps {
   children: React.ReactNode;
@@ -24,8 +25,11 @@ const MainLayout: React.FC<IMainLayoutProps> = (props) => {
   };
   return (
     <div className="main-layout-container">
-      {renderSideNavigationBar()}
-      {children}
+      <Header />
+      <div className={"main-layout-content"}>
+        {renderSideNavigationBar()}
+        {children}
+      </div>
     </div>
   );
 };

@@ -1,0 +1,45 @@
+.header-container {
+  height: 48px;
+  background: black;
+  width: 100%;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  .logo-container {
+    display: flex;
+    align-items: center;
+    height: 100%;
+    gap: 16px;
+
+    .img {
+      width: 32px;
+      height: 32px;
+    }
+
+    .page-name {
+      color: white;
+      font-size: 20px;
+
+    }
+  }
+
+  .profile-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    .p-chip {
+      background: transparent;
+      color: white;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .p-button.p-button-text {
+      color: white;
+    }
+  }
+}
