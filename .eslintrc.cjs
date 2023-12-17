@@ -13,7 +13,8 @@ module.exports = {
     "react-refresh/only-export-components": [
       "warn",
       { allowConstantExport: true }
-    ]
+    ],
+    "@typescript-eslint/no-explicit-any": "off"
     // "react/jsx-first-prop-new-line": "multiline-multiprop"
   }
 };

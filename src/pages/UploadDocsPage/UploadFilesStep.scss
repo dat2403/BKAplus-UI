@@ -1,0 +1,56 @@
+.upload-file-step-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  gap: 16px;
+
+  .p-fileupload-buttonbar {
+    border: none;
+    background: transparent;
+    display: flex;
+    justify-content: center;
+    padding: 0;
+  }
+
+  .p-fileupload-content {
+    background: transparent;
+    border: none;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+
+    .p-progressbar {
+      display: none;
+    }
+
+    .p-fileupload-row {
+      margin-bottom: 10px;
+
+      .p-chip {
+        border: 1px solid var(--gray-800);
+        background: transparent;
+        border-radius: 10px;
+        padding: 8px 16px;
+        display: flex;
+        width: 535px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+
+        .p-chip-text {
+          flex-grow: 1;
+          text-align: left;
+        }
+      }
+    }
+
+  }
+
+  .drag-and-drop-text {
+    font-size: 18px;
+    text-align: center;
+  }
+}
