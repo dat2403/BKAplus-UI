@@ -5,27 +5,30 @@ import storage from "redux-persist/lib/storage";
 import { PersistConfig } from "redux-persist/es/types";
 import AuthReducer from "./slices/AuthSlice.ts";
 import TabsReducer from "./slices/TabsSlice.ts";
+import uploadFileReducer from "./slices/UploadFileSlice.ts";
 
 const reducersToPersist: string[] = ["auth"];
 
 const persistConfig: PersistConfig<any> = {
   key: "root",
   storage,
-  whitelist: reducersToPersist
+  whitelist: reducersToPersist,
 };
 
 const rootReducer = combineReducers({
   auth: AuthReducer,
-  tabs: TabsReducer
+  tabs: TabsReducer,
+  uploadFile: uploadFileReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 
 const store = configureStore({
   reducer: persistedReducer,
-  middleware: (getDefaultMiddleware) => getDefaultMiddleware({
-    serializableCheck: false
-  })
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: false,
+    }),
 });
 const persistor = persistStore(store);
 

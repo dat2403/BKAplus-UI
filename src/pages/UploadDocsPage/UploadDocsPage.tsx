@@ -5,6 +5,8 @@ import { Steps } from "primereact/steps";
 import UploadFilesStep from "./UploadFilesStep.tsx";
 import AddDetailsStep from "./AddDetailsStep.tsx";
 import { Button } from "primereact/button";
+import { useAppDispatch } from "../../store/Store.ts";
+import { resetState } from "../../store/slices/UploadFileSlice.ts";
 
 const UploadDocsPage: React.FC = () => {
   const items = [{ label: "Tài liệu" }, { label: "Tải lên tài liệu" }];
@@ -24,6 +26,13 @@ const UploadDocsPage: React.FC = () => {
       onRenderContent: () => <div></div>,
     },
   ];
+  const dispatch = useAppDispatch();
+
+  React.useEffect(() => {
+    return () => {
+      dispatch(resetState());
+    };
+  }, []);
 
   const onNextStep = () => {
     setActiveStep((currentStep) => {
@@ -43,7 +52,10 @@ const UploadDocsPage: React.FC = () => {
     });
   };
 
-  const onFinish = () => {};
+  const onFinish = () => {
+    //TODO
+    dispatch(resetState());
+  };
 
   return (
     <div className={"upload-doc-container"}>
