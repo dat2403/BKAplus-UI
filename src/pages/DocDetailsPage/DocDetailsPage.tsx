@@ -14,6 +14,8 @@ import usePageState from "../../hooks/usePageState.ts";
 import Scaffold, { TypeLoading } from "../../shared/components/Scaffold/Scaffold.tsx";
 import { useUtils } from "../../shared/utility/Util.ts";
 import { useParams } from "react-router-dom";
+import useAsyncEffect from "../../hooks/useAsyncEffect.ts";
+import AppConfig from "../../shared/config/AppConfig.ts";
 
 const DocDetailsPage: React.FC = () => {
   const items = [{ label: "SOICT" }, { label: "Lập trình mạng" }];
@@ -36,7 +38,7 @@ const DocDetailsPage: React.FC = () => {
     try {
       setLoading(true);
       if (params?.docId) {
-        const res = await repository.getDocDetails(params?.docId);
+        const res = await repository.getDocDetails(params.docId);
         setData(res?.data)
       }
     } catch (e) {
@@ -45,9 +47,7 @@ const DocDetailsPage: React.FC = () => {
     }
   };
 
-  React.useEffect(() => {
-    fetchDocDetailsData();
-  }, []);
+  useAsyncEffect(fetchDocDetailsData, []);
 
   const downloadPdf = async () => {
     try {
@@ -79,6 +79,23 @@ const DocDetailsPage: React.FC = () => {
       console.error("Error downloading PDF:", error);
     }
   };
+
+  function renderViewer() {
+    if (!data?.files) {
+      return null
+    }
+
+    if (data.files?.length === 0) {
+      return null
+    }
+
+    const url = `${AppConfig.baseURL}/files/${data.files[0].url}`
+
+    return <Viewer
+      fileUrl={url}
+      plugins={[defaultLayoutPluginInstance]}
+    />
+  }
 
   return (
     <Scaffold isLoading={isLoading} typeLoading={TypeLoading.OVERLAY}>
@@ -142,10 +159,9 @@ const DocDetailsPage: React.FC = () => {
                   flexGrow: "1",
                 }}
               >
-                <Viewer
-                  fileUrl="https://cdn.filestackcontent.com/wcrjf9qPTCKXV3hMXDwK"
-                  plugins={[defaultLayoutPluginInstance]}
-                />
+                {
+                  renderViewer()
+                }
               </div>
             </Worker>
             <div className="right-column">

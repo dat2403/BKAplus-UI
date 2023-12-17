@@ -28,11 +28,11 @@ function App() {
   const { user, signOut } = useAuth();
 
   const client = ApiClient.getInstance();
+  client.handleOnUnauthorized(signOut);
 
   useEffect(() => {
     const token = user?.access_token;
     client.updateAccessToken(token);
-    client.handleOnUnauthorized(signOut);
   }, [user]);
 
   return (
