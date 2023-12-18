@@ -161,8 +161,8 @@ const DocDetailsPage: React.FC = () => {
                 activeIndex={activeFileIndex}
                 onTabChange={(e) => setActiveFileIndex(e.index)}
                 style={{
-                  maxWidth: "75%",
-                  minWidth: "800px",
+                  maxWidth: "72%",
+                  minWidth: "650px",
                 }}
               >
                 {data?.files?.map((file: any, index: number) => (
