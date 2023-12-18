@@ -264,7 +264,7 @@ const HomePage: React.FC = () => {
                 {listDocs?.map((doc) => {
                   return (
                     <div
-                      key={doc?.title}
+                      key={doc?.id}
                       className="doc-card"
                       onClick={() => {
                         navigate(`${AppRoute.SubjectDocs}/TruongCNTT/${doc?.id}`);
@@ -371,7 +371,7 @@ const HomePage: React.FC = () => {
                 {recentDocs?.map((doc) => {
                   return (
                     <div
-                      key={doc?.document?.title}
+                      key={doc?.document?.id}
                       className="doc-card"
                       onClick={() => {
                         navigate(`${AppRoute.SubjectDocs}/TruongCNTT/${doc?.document?.id}`);
