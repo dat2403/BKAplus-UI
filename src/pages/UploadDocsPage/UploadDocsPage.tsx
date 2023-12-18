@@ -86,20 +86,18 @@ const UploadDocsPage: React.FC = () => {
     for (let i = 0; i < selectedFiles.length; i++) {
       requestBody.append("files", selectedFiles[i], selectedFiles[i].name);
     }
-    console.log("FormData Contents:", requestBody.getAll("files"));
     requestBody.append("description", docDescription);
     requestBody.append("semester", selectedSemester);
     requestBody.append("categories", categoriesString);
     requestBody.append("lecturer_id", selectedLecturer);
     requestBody.append("subject_id", selectedSubject);
     //Missing school id
-    // const uploadRes = await repository.uploadDocument(requestBody);
-    // if (uploadRes.status_code === 200) {
-    //   showSuccess();
-    //   console.log(uploadRes);
-    // dispatch(resetState());
-    // navigate(`${AppRoute.SubjectDocs}/TruongCNTT/${uploadRes?.data?.id}`);
-    // }
+    const uploadRes = await repository.uploadDocument(requestBody);
+    if (uploadRes.status_code === 200) {
+      showSuccess();
+      // dispatch(resetState());
+      navigate(`${AppRoute.SubjectDocs}/TruongCNTT/${uploadRes?.data?.id as string}`);
+    }
     // console.log(selectedFiles);
   };
 

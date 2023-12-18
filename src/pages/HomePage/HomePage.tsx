@@ -34,6 +34,17 @@ const HomePage: React.FC = () => {
 
   const [selectedSortOption, setSelectedSortOption] = useState(sortOptions?.[0]?.code);
 
+  const [recentDocs, setRecentDocs] = React.useState<any[]>([]);
+
+  const fetchRecentDocs = async () => {
+    const res = await repository.getRecentDocs();
+    setRecentDocs(res?.data as any[]);
+  };
+
+  React.useEffect(() => {
+    fetchRecentDocs();
+  }, []);
+
   const fetchAllDocs = async () => {
     try {
       const res = await repository.getAllDocs(0, 5, searchKey);
@@ -44,7 +55,9 @@ const HomePage: React.FC = () => {
       }
       setListDocs(res?.data as any[]);
     } catch (error) {
+      //
     } finally {
+      //
     }
   };
 
@@ -355,24 +368,24 @@ const HomePage: React.FC = () => {
                 </div>
               </div>
               <div className="list-content">
-                {listDocs?.map((doc) => {
+                {recentDocs?.map((doc) => {
                   return (
                     <div
-                      key={doc?.title}
+                      key={doc?.document?.title}
                       className="doc-card"
                       onClick={() => {
-                        navigate(`${AppRoute.SubjectDocs}/TruongCNTT/${doc?.id}`);
+                        navigate(`${AppRoute.SubjectDocs}/TruongCNTT/${doc?.document?.id}`);
                       }}
                     >
                       <img
                         className="thumbnail"
-                        src={doc?.thumbnail ?? defaultThumbnail}
+                        src={doc?.document?.thumbnail ?? defaultThumbnail}
                         alt="last-seen-img"
                       />
                       <div className="doc-text-content">
-                        <div className="doc-title">{doc?.title}</div>
+                        <div className="doc-title">{doc?.document?.title}</div>
                         <div className={"tags-container"}>
-                          {doc?.categories
+                          {doc?.document?.categories
                             ?.slice(0, 2)
                             .map((cate: any) => <Chip key={cate?.id} label={cate?.name} />)}
                         </div>

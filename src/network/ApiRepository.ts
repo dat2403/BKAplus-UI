@@ -30,6 +30,10 @@ export default class ApiRepository {
     });
   }
 
+  getRecentDocs() {
+    return this.axiosClient.get<any[]>("/api/document/list/recent-view");
+  }
+
   getDocDetails(docId: string) {
     return this.axiosClient.get(`/api/document/detail/${docId}`);
   }
@@ -51,6 +55,10 @@ export default class ApiRepository {
   }
 
   uploadDocument(requestBody: FormData) {
-    return this.axiosClient.post("/api/document/create", requestBody);
+    return this.axiosClient.post<any>("/api/document/create", requestBody, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
   }
 }
