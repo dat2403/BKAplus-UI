@@ -1,4 +1,4 @@
-import { Navigate, Route, Routes, ScrollRestoration, useLocation } from "react-router-dom";
+import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import LoginPage from "./pages/LoginPage/LoginPage.tsx";
 import ProtectedRoute from "./shared/guard/ProtectedRoute.tsx";
 import React, { useEffect } from "react";
@@ -28,12 +28,11 @@ function App() {
   const { user, signOut } = useAuth();
 
   const client = ApiClient.getInstance();
+  const token = user?.access_token;
+  client.updateAccessToken(token);
   client.handleOnUnauthorized(signOut);
 
-  useEffect(() => {
-    const token = user?.access_token;
-    client.updateAccessToken(token);
-  }, [user]);
+  // useEffect(() => {}, [user]);
 
   return (
     <ScrollToTop>
