@@ -41,11 +41,7 @@ function App() {
         <Route element={<ProtectedRoute />}>
           <Route path={AppRoute.HomePage} element={<HomePage />} />
           <Route path={AppRoute.FavoriteDocs} element={<FavoriteDocsPage />} />
-          <Route path={AppRoute.SubjectDocs}>
-            <Route path={AppRoute.Faculty}>
-              <Route path={AppRoute.DocDetails} element={<DocDetailsPage />} />
-            </Route>
-          </Route>
+          <Route path="/subject-docs/:faculty/:docId" element={<DocDetailsPage />} />
           <Route path={AppRoute.UploadDocs} element={<UploadDocsPage />} />
           {/* Handle other routes */}
         </Route>

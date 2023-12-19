@@ -17,23 +17,29 @@ import { useParams } from "react-router-dom";
 import useAsyncEffect from "../../hooks/useAsyncEffect.ts";
 import AppConfig from "../../shared/config/AppConfig.ts";
 import { TabPanel, TabView } from "primereact/tabview";
+import { DocumentModel, UserReactDocument } from "../../network/models/DocumentModel.ts";
+import { useAppSelector } from "../../store/Store.ts";
 
 const DocDetailsPage: React.FC = () => {
   const items = [{ label: "SOICT" }, { label: "Lập trình mạng" }];
   const home = { label: "Trang chủ", url: "/" };
   const defaultLayoutPluginInstance = defaultLayoutPlugin();
   const { isLoading, setLoading, repository } = usePageState();
-  const [data, setData] = useState<any>();
+  const [data, setData] = useState<DocumentModel | undefined>();
   const params = useParams();
   const [activeFileIndex, setActiveFileIndex] = React.useState(0);
-
-  const { formatUtcDateString, getCurrentDate } = useUtils();
+  const [totalReacts, setTotalReacts] = React.useState<UserReactDocument[] | undefined>([]);
+  const { formatUtcDateString } = useUtils();
+  const { user } = useAppSelector(state => state.auth);
+  const [currentComment, setCurrentComment] = React.useState("");
+  const [needFetchListComment, setNeedFetchListComment] = React.useState(false);
+  const [listComment, setListComment] = React.useState<any[]>([]);
 
   const detailProperties = [
     { key: "Môn học", value: data?.subject?.name },
     { key: "Trường/Khoa", value: data?.lecturer?.school?.name },
     { key: "Giảng viên", value: data?.lecturer?.name },
-    { key: "Mô tả môn học", value: "" },
+    { key: "Mô tả môn học", value: "" }
   ];
 
   const fetchDocDetailsData = async () => {
@@ -42,6 +48,9 @@ const DocDetailsPage: React.FC = () => {
       if (params?.docId) {
         const res = await repository.getDocDetails(params.docId);
         setData(res?.data);
+        setTotalReacts(res?.data?.userReactDocuments);
+        const listCommentReversed = res?.data?.comments?.reverse()
+        setListComment(listCommentReversed as any[])
       }
     } catch (e) {
       //
@@ -50,7 +59,7 @@ const DocDetailsPage: React.FC = () => {
     }
   };
 
-  useAsyncEffect(fetchDocDetailsData, []);
+  useAsyncEffect(fetchDocDetailsData, [needFetchListComment]);
 
   const downloadPdf = async () => {
     try {
@@ -101,6 +110,36 @@ const DocDetailsPage: React.FC = () => {
     );
   }
 
+  const onHandleReact = (reactValue: boolean) => {
+    if (params.docId) {
+      // console.log(totalReacts);
+      const reactOfThisUser = totalReacts?.find(react => react?.author?.id === user?.user?.id);
+      if (!reactOfThisUser) {
+        repository.reactDoc(params.docId, reactValue).then(res => {
+          setTotalReacts(res?.data?.userReactDocuments);
+        });
+      }
+      if (reactOfThisUser?.vote !== undefined) {
+        repository.reactDoc(params.docId, undefined).then(res => {
+          setTotalReacts(res?.data?.userReactDocuments);
+        });
+      }
+    }
+  };
+
+  const onPostComment = async (event: any) => {
+    if (event.key === 'Enter') {
+      if (params.docId) {
+        const res = await repository.addComment(params.docId, currentComment);
+        if(res.status_code === 200) {
+          setNeedFetchListComment(!needFetchListComment)
+          setCurrentComment('')
+        }
+      }
+    }
+
+  };
+
   return (
     <Worker workerUrl="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js">
       <Scaffold isLoading={isLoading} typeLoading={TypeLoading.OVERLAY}>
@@ -113,7 +152,7 @@ const DocDetailsPage: React.FC = () => {
                 <div className="title-container">
                   <div className="title">{data?.title}</div>
                   <div className="create-download-times">
-                    Ngày tạo: {formatUtcDateString(data?.createdAt)} - {data?.download_count} lượt
+                    Ngày tạo: {formatUtcDateString(data?.createdAt as string)} - {data?.download_count} lượt
                     tải
                   </div>
                   <div className="favorite-share">
@@ -132,8 +171,11 @@ const DocDetailsPage: React.FC = () => {
                       rounded
                       severity="success"
                       aria-label="Like"
+                      onClick={() => {
+                        onHandleReact(true);
+                      }}
                     />
-                    <div className="like-text">100</div>
+                    <div className="like-text">{totalReacts?.filter(react => react?.vote === true)?.length}</div>
                   </div>
                   <div className="react-button">
                     <Button
@@ -141,8 +183,11 @@ const DocDetailsPage: React.FC = () => {
                       rounded
                       severity="danger"
                       aria-label="Like"
+                      onClick={() => {
+                        onHandleReact(false);
+                      }}
                     />
-                    <div className="dislike-text">0</div>
+                    <div className="dislike-text">{totalReacts?.filter(react => react?.vote === false)?.length}</div>
                   </div>
                 </div>
               </div>
@@ -162,14 +207,15 @@ const DocDetailsPage: React.FC = () => {
                 onTabChange={(e) => setActiveFileIndex(e.index)}
                 style={{
                   maxWidth: "72%",
-                  minWidth: "650px",
+                  minWidth: "650px"
                 }}
               >
                 {data?.files?.map((file: any, index: number) => (
                   <TabPanel
+                    key={index}
                     contentStyle={{
                       height: "750px",
-                      maxHeight: "800px",
+                      maxHeight: "800px"
                     }}
                     header={`File ${index + 1}`}
                   >
@@ -210,8 +256,11 @@ const DocDetailsPage: React.FC = () => {
                         rounded
                         severity="success"
                         aria-label="Like"
+                        onClick={() => {
+                          onHandleReact(true);
+                        }}
                       />
-                      <div className="like-text">100</div>
+                      <div className="like-text">{totalReacts?.filter(react => react?.vote === true)?.length}</div>
                     </div>
                     <div className="react-button">
                       <Button
@@ -219,8 +268,11 @@ const DocDetailsPage: React.FC = () => {
                         rounded
                         severity="danger"
                         aria-label="Like"
+                        onClick={() => {
+                          onHandleReact(false);
+                        }}
                       />
-                      <div className="dislike-text">0</div>
+                      <div className="dislike-text">{totalReacts?.filter(react => react?.vote === false)?.length}</div>
                     </div>
                   </div>
                   <div className="feedback">
@@ -241,9 +293,12 @@ const DocDetailsPage: React.FC = () => {
                     </div>
                     <span className="p-float-label">
                       <InputTextarea
-                        // value={value}
-                        // onChange={(e) => setValue(e.target.value)}
+                        value={currentComment}
+                        onChange={(e) => setCurrentComment(e.target.value)}
                         style={{ width: "100%" }}
+                        onKeyDown={async (event) => {
+                          await onPostComment(event);
+                        }}
                         rows={5}
                         cols={30}
                       />
@@ -252,7 +307,7 @@ const DocDetailsPage: React.FC = () => {
                   </div>
                 </div>
                 <div className="right">
-                  <div className={"comment-item"}>
+                  {listComment?.map(comment => (<div className={"comment-item"}>
                     <div className={"user-info"}>
                       <Avatar
                         label="V"
@@ -269,89 +324,14 @@ const DocDetailsPage: React.FC = () => {
                       severity="success"
                       aria-label="Like"
                     />
-                    <div className="created-time">Đăng tải ngày {getCurrentDate()}</div>
-                    <div className="content">Tài liệu tốt, giúp mình được 9 giữa kì</div>
+                    <div className="created-time">Đăng tải ngày {formatUtcDateString(comment?.createdAt as string)}</div>
+                    <div className="content">{comment?.content}</div>
                     <div className="who-liked">3 người đã thích</div>
                     <div className={"button-group"}>
                       <Button label="Like" />
                       <Button label="Report" severity="secondary" />
                     </div>
-                  </div>
-                  <div className={"comment-item"}>
-                    <div className={"user-info"}>
-                      <Avatar
-                        label="V"
-                        size="large"
-                        style={{ backgroundColor: "#2196F3", color: "#ffffff" }}
-                        shape="circle"
-                      />
-                      <div>Nguyễn Văn A</div>
-                    </div>
-                    <Button
-                      style={{ marginLeft: "10px" }}
-                      icon="pi pi-thumbs-up-fill"
-                      rounded
-                      severity="success"
-                      aria-label="Like"
-                    />
-                    <div className="created-time">Đăng tải ngày {getCurrentDate()}</div>
-                    <div className="content">Tài liệu tốt, giúp mình được 9 giữa kì</div>
-                    <div className="who-liked">3 người đã thích</div>
-                    <div className={"button-group"}>
-                      <Button label="Like" />
-                      <Button label="Report" severity="secondary" />
-                    </div>
-                  </div>
-                  <div className={"comment-item"}>
-                    <div className={"user-info"}>
-                      <Avatar
-                        label="V"
-                        size="large"
-                        style={{ backgroundColor: "#2196F3", color: "#ffffff" }}
-                        shape="circle"
-                      />
-                      <div>Nguyễn Văn A</div>
-                    </div>
-                    <Button
-                      style={{ marginLeft: "10px" }}
-                      icon="pi pi-thumbs-up-fill"
-                      rounded
-                      severity="success"
-                      aria-label="Like"
-                    />
-                    <div className="created-time">Đăng tải ngày {getCurrentDate()}</div>
-                    <div className="content">Tài liệu tốt, giúp mình được 9 giữa kì</div>
-                    <div className="who-liked">3 người đã thích</div>
-                    <div className={"button-group"}>
-                      <Button label="Like" />
-                      <Button label="Report" severity="secondary" />
-                    </div>
-                  </div>
-                  <div className={"comment-item"}>
-                    <div className={"user-info"}>
-                      <Avatar
-                        label="V"
-                        size="large"
-                        style={{ backgroundColor: "#2196F3", color: "#ffffff" }}
-                        shape="circle"
-                      />
-                      <div>Nguyễn Văn A</div>
-                    </div>
-                    <Button
-                      style={{ marginLeft: "10px" }}
-                      icon="pi pi-thumbs-up-fill"
-                      rounded
-                      severity="success"
-                      aria-label="Like"
-                    />
-                    <div className="created-time">Đăng tải ngày {getCurrentDate()}</div>
-                    <div className="content">Tài liệu tốt, giúp mình được 9 giữa kì</div>
-                    <div className="who-liked">3 người đã thích</div>
-                    <div className={"button-group"}>
-                      <Button label="Like" />
-                      <Button label="Report" severity="secondary" />
-                    </div>
-                  </div>
+                  </div>))}
                 </div>
               </div>
             </div>

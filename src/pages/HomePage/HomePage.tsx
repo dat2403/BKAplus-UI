@@ -10,9 +10,17 @@ import usePageState from "../../hooks/usePageState.ts";
 import { Dropdown } from "primereact/dropdown";
 import { Button } from "primereact/button";
 import { Dialog } from "primereact/dialog";
+import { SelectItem, SelectItemOptionsType } from "primereact/selectitem";
+import {
+  updateLecturerList,
+  updateSchoolList, updateSelectedLecturer,
+  updateSelectedSchool, updateSelectedSemester, updateSelectedSubject,
+  updateSubjectList
+} from "../../store/slices/UploadFileSlice.ts";
+import { useAppDispatch, useAppSelector } from "../../store/Store.ts";
 
 const HomePage: React.FC = () => {
-  const { mostSearchSubject, mayYouCareCourses, defaultThumbnail } = useMockData();
+  const { mostSearchSubject, defaultThumbnail } = useMockData();
   const { getPercentageOfLikes } = useUtils();
   const navigate = useNavigate();
   const { repository } = usePageState();
@@ -20,8 +28,16 @@ const HomePage: React.FC = () => {
   const [searchKey, setSearchKey] = React.useState("");
   const [isSearched, setIsSearched] = useState(false);
   const [isShowFilterDialog, setIsShowFilterDialog] = React.useState(false);
-  const [selectedCity, setSelectedCity] = useState(null);
-
+  const {
+    isFirstLoad,
+    schoolList,
+    lecturerList,
+    subjectList,
+    selectedSchool,
+    selectedLecturer,
+    selectedSubject,
+    selectedSemester
+  } = useAppSelector(state => state.uploadFile);
   //MOCK UI -> currently not working
   const sortOptions = [
     { name: "Nhiều lượt thích nhất", code: "mostlike" },
@@ -29,26 +45,79 @@ const HomePage: React.FC = () => {
     { name: "Cũ nhất", code: "oldest" },
     { name: "Tài liệu uy tín", code: "verified" },
     { name: "Nhiều bình luận nhất", code: "most commented" },
-    { name: "Ít bình luận nhất", code: "least commented" },
+    { name: "Ít bình luận nhất", code: "least commented" }
+  ];
+
+  const semesterOptions = [
+    { label: "2023.1", value: "20231" },
+    { label: "2022.2", value: "20222" },
+    { label: "2022.1", value: "20221" },
+    { label: "2021.2", value: "20212" },
+    { label: "2021.1", value: "20211" }
   ];
 
   const [selectedSortOption, setSelectedSortOption] = useState(sortOptions?.[0]?.code);
 
   const [recentDocs, setRecentDocs] = React.useState<any[]>([]);
+  const dispatch = useAppDispatch();
+  const [needFilter, setNeedFilter] = React.useState(false);
 
-  const fetchRecentDocs = async () => {
+  const fetchInitData = async () => {
     const res = await repository.getRecentDocs();
     setRecentDocs(res?.data as any[]);
+    const schoolRes = await repository.getSchoolList();
+    const newSchoolList: SelectItem[] | undefined = schoolRes?.data?.map(
+      (school) =>
+        ({
+          label: school.name,
+          value: school.id
+        }) as SelectItem
+    );
+    dispatch(updateSchoolList(newSchoolList as SelectItemOptionsType));
   };
 
   React.useEffect(() => {
-    fetchRecentDocs();
+    fetchInitData();
   }, []);
+
+  React.useEffect(() => {
+    const fetchLecturerAndSubjectList = async () => {
+      const lecturerRes = await repository.getLecturerList(selectedSchool);
+      const subjectRes = await repository.getSubjectList(selectedSchool);
+      const newLecturerList = lecturerRes?.data?.map(
+        (lecturer) =>
+          ({
+            label: lecturer.name,
+            value: lecturer.id
+          }) as SelectItem
+      );
+      const newSubjectList = subjectRes?.data?.map(
+        (sub) =>
+          ({
+            label: sub.name,
+            value: sub.id
+          }) as SelectItem
+      );
+      dispatch(updateLecturerList(newLecturerList as SelectItemOptionsType));
+      dispatch(updateSubjectList(newSubjectList as SelectItemOptionsType));
+    };
+    if (!isFirstLoad && selectedSchool !== "") {
+      fetchLecturerAndSubjectList();
+    }
+  }, [selectedSchool]);
 
   const fetchAllDocs = async () => {
     try {
-      const res = await repository.getAllDocs(0, 5, searchKey);
-      if (searchKey !== "") {
+      const params = {
+        page: 0,
+        per_page: 5,
+        lecturer_id: selectedLecturer,
+        subject_id: selectedSubject,
+        school_id: selectedSchool,
+        keyword: searchKey
+      };
+      const res = await repository.getAllDocs(params);
+      if (searchKey !== "" || needFilter) {
         setIsSearched(true);
       } else {
         setIsSearched(false);
@@ -68,14 +137,14 @@ const HomePage: React.FC = () => {
     return () => {
       clearTimeout(timeId);
     };
-  }, [searchKey]);
+  }, [searchKey, needFilter]);
 
   const onHandleSearch = (event: any) => {
     setSearchKey(event.target.value);
   };
 
   const onApplyFilterCondition = () => {
-    //TODO
+    setNeedFilter(!needFilter);
     setIsShowFilterDialog(false);
   };
 
@@ -84,7 +153,7 @@ const HomePage: React.FC = () => {
       style={{
         display: "flex",
         gap: "10px",
-        justifyContent: "flex-end",
+        justifyContent: "flex-end"
       }}
     >
       <Button
@@ -113,13 +182,15 @@ const HomePage: React.FC = () => {
           justifyContent: "center",
           display: "flex",
           flexDirection: "column",
-          maxWidth: "660px",
-          gap: "30px",
+          // maxWidth: "660px",
+          gap: "30px"
         }}
       >
         <span style={{ width: "100%" }} className="p-input-icon-left">
           <i className="pi pi-search" />
           <InputText
+            value={searchKey}
+            onChange={onHandleSearch}
             style={{ width: "100%" }}
             placeholder="Nhập từ khóa (tên tài liệu, giảng viên, môn học)"
           />
@@ -131,7 +202,7 @@ const HomePage: React.FC = () => {
             alignItems: "center",
             width: "100%",
             gap: "24px",
-            paddingBottom: "40px",
+            paddingBottom: "40px"
           }}
         >
           <div
@@ -140,16 +211,16 @@ const HomePage: React.FC = () => {
               flex: 1,
               gap: "8px",
               display: "flex",
-              flexDirection: "column",
+              flexDirection: "column"
             }}
           >
             <div>Khoa</div>
             <Dropdown
-              value={selectedCity}
-              onChange={(e) => setSelectedCity(e.value)}
-              options={sortOptions}
-              optionLabel="name"
-              optionValue="code"
+              value={selectedSchool}
+              onChange={(e) => dispatch(updateSelectedSchool(e.value))}
+              options={schoolList}
+              optionLabel="label"
+              optionValue="value"
               placeholder="Chọn khoa"
               className="w-full"
             />
@@ -160,60 +231,62 @@ const HomePage: React.FC = () => {
               flex: 1,
               gap: "8px",
               display: "flex",
-              flexDirection: "column",
+              flexDirection: "column"
             }}
           >
             <div>Học kỳ</div>
             <Dropdown
-              value={selectedCity}
-              onChange={(e) => setSelectedCity(e.value)}
-              options={sortOptions}
-              optionLabel="name"
-              optionValue="code"
+              value={selectedSemester}
+              onChange={(e) => dispatch(updateSelectedSemester(e.value))}
+              options={semesterOptions}
+              optionLabel="label"
+              optionValue="value"
               placeholder="Chọn học kỳ"
               className="w-full"
             />
           </div>
-          <div
-            style={{
-              minWidth: "40%",
-              flex: 1,
-              gap: "8px",
-              display: "flex",
-              flexDirection: "column",
-            }}
-          >
-            <div>Giảng viên</div>
-            <Dropdown
-              value={selectedCity}
-              onChange={(e) => setSelectedCity(e.value)}
-              options={sortOptions}
-              optionLabel="name"
-              optionValue="code"
-              placeholder={"Chọn giảng viên"}
-              className="w-full"
-            />
-          </div>
-          <div
-            style={{
-              minWidth: "40%",
-              flex: 1,
-              gap: "8px",
-              display: "flex",
-              flexDirection: "column",
-            }}
-          >
-            <div>Môn học</div>
-            <Dropdown
-              value={selectedCity}
-              onChange={(e) => setSelectedCity(e.value)}
-              options={sortOptions}
-              optionLabel="name"
-              optionValue="code"
-              placeholder="Chọn môn học"
-              className="w-full"
-            />
-          </div>
+          {selectedSchool !== "" && (<React.Fragment>
+            <div
+              style={{
+                minWidth: "40%",
+                flex: 1,
+                gap: "8px",
+                display: "flex",
+                flexDirection: "column"
+              }}
+            >
+              <div>Giảng viên</div>
+              <Dropdown
+                value={selectedLecturer}
+                onChange={(e) => dispatch(updateSelectedLecturer(e.value))}
+                options={lecturerList}
+                optionLabel="label"
+                optionValue="value"
+                placeholder={"Chọn giảng viên"}
+                className="w-full"
+              />
+            </div>
+            <div
+              style={{
+                minWidth: "40%",
+                flex: 1,
+                gap: "8px",
+                display: "flex",
+                flexDirection: "column"
+              }}
+            >
+              <div>Môn học</div>
+              <Dropdown
+                value={selectedSubject}
+                onChange={(e) => dispatch(updateSelectedSubject(e.value))}
+                options={subjectList}
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Chọn môn học"
+                className="w-full"
+              />
+            </div>
+          </React.Fragment>)}
         </div>
       </div>
     </Dialog>
@@ -227,7 +300,7 @@ const HomePage: React.FC = () => {
             display: "flex",
             alignItems: "center",
             gap: "20px",
-            width: "100%",
+            width: "100%"
           }}
         >
           <span className="p-input-icon-right search-box-container">
@@ -251,7 +324,7 @@ const HomePage: React.FC = () => {
                 </div>
                 <Dropdown
                   style={{
-                    width: "250px",
+                    width: "250px"
                   }}
                   value={selectedSortOption}
                   onChange={(e) => setSelectedSortOption(e.value)}
@@ -306,13 +379,15 @@ const HomePage: React.FC = () => {
               </div>
 
               <div className="list-course-content">
-                {mayYouCareCourses.map((course) => {
+                {listDocs?.map((doc) => {
                   return (
-                    <div key={course.title} className="course-card">
-                      <img src={course.imageUrl} alt="course-img" className="course-image" />
+                    <div key={doc?.id} className="course-card" onClick={() => {
+                      navigate(`${AppRoute.SubjectDocs}/TruongCNTT/${doc?.id}`);
+                    }}>
+                      <img src={doc?.imageUrl ?? defaultThumbnail} alt="course-img" className="course-image" />
                       <div className="course-content">
-                        <div className="title">{course.title}</div>
-                        <div className="description">{course.description}</div>
+                        <div className="title">{doc?.title}</div>
+                        <div className="description">{doc?.description}</div>
                       </div>
                     </div>
                   );
@@ -346,13 +421,16 @@ const HomePage: React.FC = () => {
               </div>
 
               <div className="list-course-content">
-                {mayYouCareCourses.map((course) => {
+                {listDocs?.map((doc) => {
                   return (
-                    <div key={course.title} className="course-card">
-                      <img src={course.imageUrl} alt="course-img" className="course-image" />
+                    <div key={doc?.id} className="course-card"
+                         onClick={() => {
+                           navigate(`${AppRoute.SubjectDocs}/TruongCNTT/${doc?.id}`);
+                         }}>
+                      <img src={doc?.imageUrl ?? defaultThumbnail} alt="course-img" className="course-image" />
                       <div className="course-content">
-                        <div className="title">{course.title}</div>
-                        <div className="description">{course.description}</div>
+                        <div className="title">{doc?.title}</div>
+                        <div className="description">{doc?.description}</div>
                       </div>
                     </div>
                   );

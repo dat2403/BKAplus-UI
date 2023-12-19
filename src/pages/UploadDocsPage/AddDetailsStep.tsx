@@ -101,7 +101,7 @@ const AddDetailsStep: React.FC = () => {
       dispatch(updateLecturerList(newLecturerList as SelectItemOptionsType));
       dispatch(updateSubjectList(newSubjectList as SelectItemOptionsType));
     };
-    if (!selectedSchool || selectedSchool !== "") {
+    if (!isFirstLoad && selectedSchool !== "") {
       fetchLecturerAndSubjectList();
     }
   }, [selectedSchool]);
