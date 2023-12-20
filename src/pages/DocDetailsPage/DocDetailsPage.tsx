@@ -55,6 +55,7 @@ const DocDetailsPage: React.FC = () => {
     } catch (e) {
       //
     } finally {
+
       setLoading(false);
     }
   };
@@ -314,8 +315,9 @@ const DocDetailsPage: React.FC = () => {
                         size="large"
                         style={{ backgroundColor: "#2196F3", color: "#ffffff" }}
                         shape="circle"
+                        image={user?.user?.avatar}
                       />
-                      <div>Nguyễn Văn A</div>
+                      <div>{user?.user?.full_name}</div>
                     </div>
                     <Button
                       style={{ marginLeft: "10px" }}

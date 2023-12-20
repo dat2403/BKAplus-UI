@@ -110,7 +110,7 @@ const HomePage: React.FC = () => {
     try {
       const params = {
         page: 0,
-        per_page: 5,
+        per_page: 10,
         lecturer_id: selectedLecturer,
         subject_id: selectedSubject,
         school_id: selectedSchool,
@@ -122,7 +122,8 @@ const HomePage: React.FC = () => {
       } else {
         setIsSearched(false);
       }
-      setListDocs(res?.data as any[]);
+      const newDocsReverse = res?.data?.reverse()?.slice(0, 5)
+      setListDocs(newDocsReverse as any[]);
     } catch (error) {
       //
     } finally {
