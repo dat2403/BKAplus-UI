@@ -1,5 +1,6 @@
 import ApiClient from "./ApiClient.ts";
 import { LoginModelRequest, LoginModelResponse } from "./models/LoginModelRequest.ts";
+import { DocumentModel } from "./models/DocumentModel.ts";
 
 export default class ApiRepository {
   private axiosClient = ApiClient.getInstance();
@@ -20,13 +21,9 @@ export default class ApiRepository {
     return this.axiosClient.post<LoginModelResponse>("/api/login", request);
   }
 
-  getAllDocs(page: number = 0, perPage: number = 5, name?: string) {
+  getAllDocs(params: any) {
     return this.axiosClient.get<any[]>(`/api/document/list/all`, {
-      params: {
-        page: page,
-        per_page: perPage,
-        name: name,
-      },
+      params: params
     });
   }
 
@@ -35,7 +32,7 @@ export default class ApiRepository {
   }
 
   getDocDetails(docId: string) {
-    return this.axiosClient.get(`/api/document/detail/${docId}`);
+    return this.axiosClient.get<DocumentModel>(`/api/document/detail/${docId}`);
   }
 
   getCategoryList() {
@@ -60,5 +57,19 @@ export default class ApiRepository {
         "Content-Type": "multipart/form-data",
       },
     });
+  }
+
+  reactDoc(docId: string, vote?: boolean) {
+    return this.axiosClient.post<DocumentModel>("/api/document/vote", {
+      id: docId,
+      vote: vote
+    })
+  }
+
+  addComment(docId: string, content: string) {
+    return this.axiosClient.post<DocumentModel>("/api/document/comment", {
+      id: docId,
+      content: content
+    })
   }
 }

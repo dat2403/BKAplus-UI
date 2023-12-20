@@ -96,9 +96,9 @@ const UploadDocsPage: React.FC = () => {
     if (uploadRes.status_code === 200) {
       showSuccess();
       // dispatch(resetState());
-      navigate(`${AppRoute.SubjectDocs}/TruongCNTT/${uploadRes?.data?.id as string}`);
+      const url = `/${AppRoute.SubjectDocs}/TruongCNTT/${uploadRes?.data?.id as string}`
+      navigate(url);
     }
-    // console.log(selectedFiles);
   };
 
   return (
