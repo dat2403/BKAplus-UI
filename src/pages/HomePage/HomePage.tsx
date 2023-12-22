@@ -110,7 +110,7 @@ const HomePage: React.FC = () => {
     try {
       const params = {
         page: 0,
-        per_page: 10,
+        per_page: 20,
         lecturer_id: selectedLecturer,
         subject_id: selectedSubject,
         school_id: selectedSchool,
@@ -122,7 +122,7 @@ const HomePage: React.FC = () => {
       } else {
         setIsSearched(false);
       }
-      const newDocsReverse = res?.data?.reverse()?.slice(0, 5)
+      const newDocsReverse = res?.data?.reverse().slice(0,4)
       setListDocs(newDocsReverse as any[]);
     } catch (error) {
       //
@@ -373,7 +373,9 @@ const HomePage: React.FC = () => {
             <div className="list-course">
               <div className="title-container">
                 <div className="list-title">Có thể bạn quan tâm</div>
-                <div className="view-all">
+                <div className="view-all" onClick={() => {
+                  navigate("/may-you-care")
+                }}>
                   Xem tất cả
                   <i style={{ fontSize: "12px" }} className="pi pi-chevron-right"></i>
                 </div>
@@ -415,7 +417,9 @@ const HomePage: React.FC = () => {
             <div className="list-course">
               <div className="title-container">
                 <div className="list-title">Có thể bạn quan tâm</div>
-                <div className="view-all">
+                <div className="view-all" onClick={() => {
+                  navigate("/may-you-care")
+                }}>
                   Xem tất cả
                   <i style={{ fontSize: "12px" }} className="pi pi-chevron-right"></i>
                 </div>
@@ -441,7 +445,9 @@ const HomePage: React.FC = () => {
             <div className="list-last-seen-document">
               <div className="title-container">
                 <div className="list-title">Được xem gần đây</div>
-                <div className="view-all">
+                <div className="view-all" onClick={() => {
+                  navigate("/list-recent-docs")
+                }}>
                   Xem tất cả
                   <i style={{ fontSize: "12px" }} className="pi pi-chevron-right"></i>
                 </div>
