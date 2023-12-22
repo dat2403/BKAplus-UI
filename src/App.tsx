@@ -12,6 +12,8 @@ import { AppRoute } from "./models/enums/AppRoute.ts";
 import FavoriteDocsPage from "./pages/FavoriteDocsPage/FavoriteDocsPage.tsx";
 import DocDetailsPage from "./pages/DocDetailsPage/DocDetailsPage.tsx";
 import UploadDocsPage from "./pages/UploadDocsPage/UploadDocsPage.tsx";
+import MayYouCarePage from "./pages/MayYouCarePage/MayYouCarePage.tsx";
+import ListRecentDocsPage from "./pages/ListRecentDocsPage/ListRecentDocsPage.tsx";
 
 export const AppToastRef = React.createRef<Toast>();
 
@@ -40,6 +42,8 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route element={<ProtectedRoute />}>
           <Route path={AppRoute.HomePage} element={<HomePage />} />
+          <Route path={"/may-you-care"} element={<MayYouCarePage />} />
+          <Route path={"/list-recent-docs"} element={<ListRecentDocsPage />} />
           <Route path={AppRoute.FavoriteDocs} element={<FavoriteDocsPage />} />
           <Route path="/subject-docs/:faculty/:docId" element={<DocDetailsPage />} />
           <Route path={AppRoute.UploadDocs} element={<UploadDocsPage />} />
