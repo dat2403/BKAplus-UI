@@ -2,6 +2,8 @@ import React from "react";
 import * as dayjs from "dayjs";
 import * as utc from "dayjs/plugin/utc";
 import * as customParseFormat from "dayjs/plugin/customParseFormat";
+import { SearchParams } from "../../models/SearchParams.ts";
+import _ from "lodash"
 
 dayjs.extend(utc);
 dayjs.extend(customParseFormat);
@@ -35,10 +37,15 @@ export const useUtils = () => {
     return fileSizeInMBFloored;
   };
 
+  function removeEmptyAndUndefinedParams(params: SearchParams): SearchParams {
+    return _.omitBy(params, _.isEmpty);
+  }
+
   return {
     getPercentageOfLikes,
     formatUtcDateString,
     getCurrentDate,
     calcFileSizeInMB,
+    removeEmptyAndUndefinedParams
   };
 };

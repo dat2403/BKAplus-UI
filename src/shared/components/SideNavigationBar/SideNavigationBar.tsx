@@ -6,6 +6,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { AppRoute } from "../../../models/enums/AppRoute";
 import { Menu } from "primereact/menu";
 import useAuth from "../../../hooks/useAuth.ts";
+import { PanelMenu } from "primereact/panelmenu";
 
 interface ISideNavButton {
   title: string;
@@ -24,8 +25,8 @@ const SideNavigationBar = () => {
     {
       label: "Đăng xuất",
       icon: "pi pi-sign-out",
-      command: signOut,
-    },
+      command: signOut
+    }
   ];
 
   const sideNavButtonList: ISideNavButton[] = [
@@ -35,7 +36,7 @@ const SideNavigationBar = () => {
       isFocused: location.pathname === AppRoute.HomePage,
       onNavigate: () => {
         navigate(AppRoute.HomePage);
-      },
+      }
     },
     {
       title: "Tài liệu môn học",
@@ -43,7 +44,7 @@ const SideNavigationBar = () => {
       isFocused: location.pathname.includes(AppRoute.SubjectDocs),
       onNavigate: () => {
         navigate(`${AppRoute.SubjectDocs}/TruongCNTT/12`);
-      },
+      }
     },
     {
       title: "Tài liệu yêu thích",
@@ -51,17 +52,17 @@ const SideNavigationBar = () => {
       isFocused: location.pathname.includes(AppRoute.FavoriteDocs),
       onNavigate: () => {
         navigate(AppRoute.FavoriteDocs);
-      },
+      }
     },
     {
       title: "Chương trình đào tạo",
       iconName: "pi-bars",
       isFocused: false,
-      onNavigate: () => {},
-    },
+      onNavigate: () => {
+      }
+    }
   ];
 
-  // @ts-ignore
   return (
     <div className="side-nav-bar-container">
       <div className="side-nav-header">

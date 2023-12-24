@@ -11,16 +11,15 @@ import { Dropdown } from "primereact/dropdown";
 import usePageState from "../../hooks/usePageState.ts";
 import {
   updateDocDescription,
-  updateDocTitle,
+  updateDocTitle, updateInitData,
   updateLecturerList,
   updateListCategory,
-  updateSchoolList,
   updateSelectedCategories,
   updateSelectedLecturer,
   updateSelectedSchool,
   updateSelectedSemester,
   updateSelectedSubject,
-  updateSubjectList,
+  updateSubjectList
 } from "../../store/slices/UploadFileSlice.ts";
 import { SelectItem, SelectItemOptionsType } from "primereact/selectitem";
 
@@ -39,19 +38,12 @@ const AddDetailsStep: React.FC = () => {
     docTitle,
     docDescription,
     selectedSemester,
+    semesterList,
   } = useAppSelector((state) => state.uploadFile);
   const { repository } = usePageState();
   const { calcFileSizeInMB } = useUtils();
   // const [selectedCategories, setSelectedCategories] = React.useState(null);
   const dispatch = useAppDispatch();
-
-  const semesterOptions = [
-    { label: "2023.1", value: "20231" },
-    { label: "2022.2", value: "20222" },
-    { label: "2022.1", value: "20221" },
-    { label: "2021.2", value: "20212" },
-    { label: "2021.1", value: "20211" },
-  ];
 
   React.useEffect(() => {
     const fetchInitData = async () => {
@@ -72,7 +64,18 @@ const AddDetailsStep: React.FC = () => {
             value: school.id,
           }) as SelectItem,
       );
-      dispatch(updateSchoolList(newSchoolList as SelectItemOptionsType));
+      const semesterRes = await repository.getSemesterList()
+      const newSemesterList: SelectItem[] | undefined = semesterRes?.data?.map(
+        (semester) =>
+          ({
+            label: semester.name,
+            value: semester.id,
+          }) as SelectItem,
+      );
+      dispatch(updateInitData({
+        schoolList: newSchoolList as SelectItemOptionsType,
+        semesterList: newSemesterList as SelectItemOptionsType
+      }));
     };
 
     if (isFirstLoad) {
@@ -192,7 +195,7 @@ const AddDetailsStep: React.FC = () => {
               <Dropdown
                 value={selectedSemester}
                 onChange={(e) => dispatch(updateSelectedSemester(e.value))}
-                options={semesterOptions}
+                options={semesterList}
                 optionLabel="label"
                 optionValue="value"
                 placeholder="Chọn học kỳ"
