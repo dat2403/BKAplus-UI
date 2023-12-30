@@ -2,6 +2,8 @@ import React from "react";
 import * as dayjs from "dayjs";
 import * as utc from "dayjs/plugin/utc";
 import * as customParseFormat from "dayjs/plugin/customParseFormat";
+import { SearchParams } from "../../models/SearchParams.ts";
+import _ from "lodash"
 
 dayjs.extend(utc);
 dayjs.extend(customParseFormat);
@@ -12,7 +14,10 @@ export type HtmlProps<T> = React.DetailedHTMLProps<React.HTMLAttributes<T>, T>;
 
 export const useUtils = () => {
   const getPercentageOfLikes = (liked: number = 100, disliked: number = 0): number => {
-    return Math.floor((liked / (liked + disliked)) * 100);
+    if(liked > 0 || disliked > 0) {
+      return Math.floor((liked / (liked + disliked)) * 100);
+    }
+    return 0;
   };
 
   const formatUtcDateString = (inputDate: string): string => {
@@ -35,10 +40,15 @@ export const useUtils = () => {
     return fileSizeInMBFloored;
   };
 
+  function removeEmptyAndUndefinedParams(params: SearchParams): SearchParams {
+    return _.omitBy(params, _.isEmpty);
+  }
+
   return {
     getPercentageOfLikes,
     formatUtcDateString,
     getCurrentDate,
     calcFileSizeInMB,
+    removeEmptyAndUndefinedParams
   };
 };

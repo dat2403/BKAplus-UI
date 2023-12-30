@@ -4,7 +4,10 @@
   //margin-top: 50px;
   width: 100%;
   gap: 16px;
-  padding: 24px 24px 40px 50px;
+  padding: 24px 24px 80px 50px;
+  flex: 1;
+  min-height: 100vh;
+  justify-content: space-between;
 
   .p-breadcrumb {
     background: transparent;
@@ -17,7 +20,7 @@
     align-items: center;
     justify-content: space-between;
     width: 100%;
-    margin-top: 24px;
+    margin: 24px 0;
 
     .list-title {
       font-size: 22px;

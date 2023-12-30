@@ -16,6 +16,9 @@ export interface UploadFileState {
   docTitle: string;
   docDescription: string;
   selectedSemester: string;
+  semesterList: SelectItemOptionsType;
+  isContinueUpload: boolean;
+  selectedEvidence?: File;
 }
 
 const initialState: UploadFileState = {
@@ -27,11 +30,14 @@ const initialState: UploadFileState = {
   schoolList: [],
   lecturerList: [],
   subjectList: [],
+  semesterList: [],
   selectedSchool: "",
   selectedLecturer: "",
   selectedSubject: "",
   docTitle: "",
   docDescription: "",
+  isContinueUpload: false,
+  selectedEvidence: undefined
 };
 
 export const uploadFileSlice = createSlice({
@@ -41,6 +47,9 @@ export const uploadFileSlice = createSlice({
     updateSelectedFiles: (state, action: PayloadAction<File[]>) => {
       state.selectedFiles = action.payload;
     },
+    updateSelectedEvidence: (state, action: PayloadAction<File>) => {
+      state.selectedEvidence = action.payload;
+    },
     updateSelectedSemester: (state, action: PayloadAction<string>) => {
       state.selectedSemester = action.payload;
     },
@@ -48,8 +57,9 @@ export const uploadFileSlice = createSlice({
     updateListCategory: (state, action: PayloadAction<SelectItemOptionsType>) => {
       state.categoryList = action.payload;
     },
-    updateSchoolList: (state, action: PayloadAction<SelectItemOptionsType>) => {
-      state.schoolList = action.payload;
+    updateInitData: (state, action: PayloadAction<{schoolList: SelectItemOptionsType, semesterList: SelectItemOptionsType}>) => {
+      state.schoolList = action.payload.schoolList;
+      state.semesterList = action.payload.semesterList;
       state.isFirstLoad = false;
     },
     updateLecturerList: (state, action: PayloadAction<SelectItemOptionsType>) => {
@@ -76,6 +86,15 @@ export const uploadFileSlice = createSlice({
     updateDocDescription: (state, action: PayloadAction<string>) => {
       state.docDescription = action.payload;
     },
+    resetSelectedData: (state) => {
+      state.selectedSchool = initialState.selectedSchool
+      state.selectedSemester = initialState.selectedSemester
+      state.selectedLecturer = initialState.selectedLecturer
+      state.selectedSubject = initialState.selectedSubject
+    },
+    toggleContinueUpload: (state) => {
+      state.isContinueUpload = !state.isContinueUpload
+    }
   },
 });
 
@@ -84,8 +103,10 @@ export const {
   updateDocTitle,
   updateDocDescription,
   updateSelectedFiles,
-  updateSchoolList,
+  updateSelectedEvidence,
+  updateInitData,
   resetState,
+  resetSelectedData,
   updateSelectedCategories,
   updateListCategory,
   updateSelectedSchool,
@@ -93,6 +114,7 @@ export const {
   updateSelectedSubject,
   updateLecturerList,
   updateSubjectList,
+  toggleContinueUpload
 } = uploadFileSlice.actions;
 
 const uploadFileReducer = uploadFileSlice.reducer;

@@ -9,16 +9,27 @@ import { defaultLayoutPlugin } from "@react-pdf-viewer/default-layout";
 import "@react-pdf-viewer/default-layout/lib/styles/index.css";
 import { Chip } from "primereact/chip";
 import { InputTextarea } from "primereact/inputtextarea";
-import { Avatar } from "primereact/avatar";
+// import { Avatar } from "primereact/avatar";
 import usePageState from "../../hooks/usePageState.ts";
 import Scaffold, { TypeLoading } from "../../shared/components/Scaffold/Scaffold.tsx";
 import { useUtils } from "../../shared/utility/Util.ts";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import useAsyncEffect from "../../hooks/useAsyncEffect.ts";
 import AppConfig from "../../shared/config/AppConfig.ts";
 import { TabPanel, TabView } from "primereact/tabview";
 import { DocumentModel, UserReactDocument } from "../../network/models/DocumentModel.ts";
-import { useAppSelector } from "../../store/Store.ts";
+import { useAppDispatch, useAppSelector } from "../../store/Store.ts";
+import { UserRole } from "../../models/enums/UserRole.ts";
+import icVerify from "../../assets/icons/ic_verified.png";
+import icVerified from "../../assets/icons/is_after_verified.png";
+import { Dialog } from "primereact/dialog";
+import { Toast } from "primereact/toast";
+import {
+  resetHomeState,
+  updateSelectedCategoryName,
+  updateSelectedFilteredCategory
+} from "../../store/slices/HomeSlice.ts";
+import SeeMoreComment from "./SeeMoreComment.tsx";
 
 const DocDetailsPage: React.FC = () => {
   const items = [{ label: "SOICT" }, { label: "Lập trình mạng" }];
@@ -34,14 +45,27 @@ const DocDetailsPage: React.FC = () => {
   const [currentComment, setCurrentComment] = React.useState("");
   const [needFetchListComment, setNeedFetchListComment] = React.useState(false);
   const [listComment, setListComment] = React.useState<any[]>([]);
+  const [isShowAdminVerify, setIsShowAdminVerify] = React.useState(false);
+  const [isDocVerified, setIsDocVerified] = React.useState(false);
+  const isAdmin = Boolean(user?.user?.role === UserRole.Admin);
+  const toastRef = React.useRef<Toast>(null);
+
+  const reactOfThisUser = totalReacts?.find(react => react?.author?.id === user?.user?.id);
+  const isUserLike = reactOfThisUser?.vote === true
+  const isUserDislike = reactOfThisUser?.vote === false
+  const dispatch = useAppDispatch()
+  const navigate = useNavigate()
 
   const detailProperties = [
     { key: "Môn học", value: data?.subject?.name },
     { key: "Trường/Khoa", value: data?.lecturer?.school?.name },
     { key: "Giảng viên", value: data?.lecturer?.name },
-    { key: "Mô tả môn học", value: "" }
+    { key: "Mô tả môn học", value: data?.description }
   ];
 
+  React.useEffect(() => {
+    dispatch(resetHomeState())
+  }, [])
   const fetchDocDetailsData = async () => {
     try {
       setLoading(true);
@@ -49,8 +73,11 @@ const DocDetailsPage: React.FC = () => {
         const res = await repository.getDocDetails(params.docId);
         setData(res?.data);
         setTotalReacts(res?.data?.userReactDocuments);
-        const listCommentReversed = res?.data?.comments?.reverse()
-        setListComment(listCommentReversed as any[])
+        if (res?.data?.is_verified === true) {
+          setIsDocVerified(res?.data?.is_verified as boolean);
+        }
+        const listCommentReversed = res?.data?.comments?.reverse();
+        setListComment(listCommentReversed as any[]);
       }
     } catch (e) {
       //
@@ -113,14 +140,15 @@ const DocDetailsPage: React.FC = () => {
 
   const onHandleReact = (reactValue: boolean) => {
     if (params.docId) {
-      // console.log(totalReacts);
-      const reactOfThisUser = totalReacts?.find(react => react?.author?.id === user?.user?.id);
       if (!reactOfThisUser) {
         repository.reactDoc(params.docId, reactValue).then(res => {
           setTotalReacts(res?.data?.userReactDocuments);
         });
-      }
-      if (reactOfThisUser?.vote !== undefined) {
+      } else if (reactOfThisUser?.vote !== undefined && reactOfThisUser?.vote === !reactValue) {
+        repository.reactDoc(params.docId, reactValue).then(res => {
+          setTotalReacts(res?.data?.userReactDocuments);
+        });
+      } else {
         repository.reactDoc(params.docId, undefined).then(res => {
           setTotalReacts(res?.data?.userReactDocuments);
         });
@@ -128,17 +156,59 @@ const DocDetailsPage: React.FC = () => {
     }
   };
 
-  const onPostComment = async (event: any) => {
-    if (event.key === 'Enter') {
-      if (params.docId) {
-        const res = await repository.addComment(params.docId, currentComment);
-        if(res.status_code === 200) {
-          setNeedFetchListComment(!needFetchListComment)
-          setCurrentComment('')
-        }
+  const showAddCommentSuccess = () => {
+    toastRef.current?.show({ severity: "success", summary: "Success", detail: "Thêm đánh giá thành công", life: 3000 });
+  };
+
+  const onPostComment = async () => {
+    if (params.docId) {
+      const res = await repository.addComment(params.docId, currentComment);
+      if (res.status_code === 200) {
+        setNeedFetchListComment(!needFetchListComment);
+        setCurrentComment("");
+        showAddCommentSuccess();
       }
     }
+  };
 
+  const onVerifyDocument = async () => {
+    try {
+      if (params.docId) {
+        const res = await repository.verifyDocument(params.docId, true);
+        setIsDocVerified(res?.data?.is_verified as boolean);
+      }
+    } catch (e) {
+      //////
+    } finally {
+      setIsShowAdminVerify(false);
+    }
+  };
+
+  const footerContent = (
+    <div>
+      <Button label="Hủy Bỏ" icon="pi pi-times" severity="danger" onClick={() => setIsShowAdminVerify(false)} />
+      <Button label="Xác Nhận" icon="pi pi-check" onClick={async () => {
+        await onVerifyDocument();
+      }} autoFocus />
+    </div>
+  );
+  const renderAdminVerifyDialog = () => (
+    <Dialog
+      header={"Đánh giá tài liệu"}
+      visible={isShowAdminVerify}
+      style={{ width: "50vw" }}
+      onHide={() => setIsShowAdminVerify(false)}
+      footer={footerContent}>
+      <p className="m-0">
+        Bạn xác nhận đánh giá rằng tài liệu này uy tín và đủ chất lượng ?
+      </p>
+    </Dialog>
+  );
+
+  const onOpenVerifyDialog = () => {
+    if (!isDocVerified) {
+      setIsShowAdminVerify(true);
+    }
   };
 
   return (
@@ -151,7 +221,21 @@ const DocDetailsPage: React.FC = () => {
             <div className="doc-details-header">
               <div className="left-column">
                 <div className="title-container">
-                  <div className="title">{data?.title}</div>
+                  <div style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "16px"
+                  }}>
+                    <div className="title">{data?.title}</div>
+                    {isAdmin && <div style={{
+                      cursor: "pointer"
+                    }} onClick={onOpenVerifyDialog}>
+                      <img src={!isDocVerified ? icVerify : icVerified} alt="" style={{
+                        width: "20px",
+                        height: "20px"
+                      }} />
+                    </div>}
+                  </div>
                   <div className="create-download-times">
                     Ngày tạo: {formatUtcDateString(data?.createdAt as string)} - {data?.download_count} lượt
                     tải
@@ -170,7 +254,7 @@ const DocDetailsPage: React.FC = () => {
                     <Button
                       icon="pi pi-thumbs-up-fill"
                       rounded
-                      severity="success"
+                      severity={isUserLike ? "success" : "secondary"}
                       aria-label="Like"
                       onClick={() => {
                         onHandleReact(true);
@@ -182,7 +266,7 @@ const DocDetailsPage: React.FC = () => {
                     <Button
                       icon="pi pi-thumbs-down-fill"
                       rounded
-                      severity="danger"
+                      severity={isUserDislike ? "danger" : "secondary"}
                       aria-label="Like"
                       onClick={() => {
                         onHandleReact(false);
@@ -229,7 +313,11 @@ const DocDetailsPage: React.FC = () => {
                   <div className="list-title">Từ khóa</div>
                   <div className={"tags-container"}>
                     {data?.categories?.map((cate: any) => (
-                      <Chip key={cate?.id} label={cate?.name} />
+                      <Chip key={cate?.id} label={cate?.name} onClick={() => {
+                        dispatch(updateSelectedFilteredCategory(cate?.id))
+                        dispatch(updateSelectedCategoryName(cate?.name))
+                        navigate("/")
+                      }}/>
                     ))}
                   </div>
                 </div>
@@ -250,46 +338,26 @@ const DocDetailsPage: React.FC = () => {
               <div className="list-title">Đánh giá</div>
               <div className="comment-cols">
                 <div className="left">
-                  <div className="like-container">
-                    <div className="react-button">
-                      <Button
-                        icon="pi pi-thumbs-up-fill"
-                        rounded
-                        severity="success"
-                        aria-label="Like"
-                        onClick={() => {
-                          onHandleReact(true);
-                        }}
-                      />
-                      <div className="like-text">{totalReacts?.filter(react => react?.vote === true)?.length}</div>
-                    </div>
-                    <div className="react-button">
-                      <Button
-                        icon="pi pi-thumbs-down-fill"
-                        rounded
-                        severity="danger"
-                        aria-label="Like"
-                        onClick={() => {
-                          onHandleReact(false);
-                        }}
-                      />
-                      <div className="dislike-text">{totalReacts?.filter(react => react?.vote === false)?.length}</div>
-                    </div>
-                  </div>
                   <div className="feedback">
                     <div className="title">Đánh giá tài liệu này</div>
                     <div className="react-wrapper">
                       <Button
                         icon="pi pi-thumbs-up-fill"
                         rounded
-                        severity="success"
+                        severity={isUserLike ? "success" : "secondary"}
                         aria-label="Like"
+                        onClick={() => {
+                          onHandleReact(true)
+                        }}
                       />
                       <Button
                         icon="pi pi-thumbs-down-fill"
                         rounded
-                        severity="danger"
+                        severity={isUserDislike ? "danger" : "secondary"}
                         aria-label="Dislike"
+                        onClick={() => {
+                          onHandleReact(false)
+                        }}
                       />
                     </div>
                     <span className="p-float-label">
@@ -297,49 +365,37 @@ const DocDetailsPage: React.FC = () => {
                         value={currentComment}
                         onChange={(e) => setCurrentComment(e.target.value)}
                         style={{ width: "100%" }}
-                        onKeyDown={async (event) => {
-                          await onPostComment(event);
-                        }}
                         rows={5}
                         cols={30}
                       />
                       <label htmlFor="description">Nhận xét</label>
                     </span>
+                    <div style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "flex-end",
+                      width: "100%",
+                      gap: "16px"
+                    }}>
+                      <Button label="Hủy" severity="secondary" outlined onClick={() => {
+                        setCurrentComment("");
+                      }} />
+                      <Button label="Gửi đánh giá" onClick={async () => {
+                        await onPostComment();
+                      }} />
+                    </div>
                   </div>
                 </div>
                 <div className="right">
-                  {listComment?.map(comment => (<div className={"comment-item"}>
-                    <div className={"user-info"}>
-                      <Avatar
-                        label="V"
-                        size="large"
-                        style={{ backgroundColor: "#2196F3", color: "#ffffff" }}
-                        shape="circle"
-                        image={user?.user?.avatar}
-                      />
-                      <div>{user?.user?.full_name}</div>
-                    </div>
-                    <Button
-                      style={{ marginLeft: "10px" }}
-                      icon="pi pi-thumbs-up-fill"
-                      rounded
-                      severity="success"
-                      aria-label="Like"
-                    />
-                    <div className="created-time">Đăng tải ngày {formatUtcDateString(comment?.createdAt as string)}</div>
-                    <div className="content">{comment?.content}</div>
-                    <div className="who-liked">3 người đã thích</div>
-                    <div className={"button-group"}>
-                      <Button label="Like" />
-                      <Button label="Report" severity="secondary" />
-                    </div>
-                  </div>))}
+                  {listComment?.map(comment => (<SeeMoreComment key={comment?.id} comment={comment}/>))}
                 </div>
               </div>
             </div>
           </div>
         </div>
       </Scaffold>
+      {renderAdminVerifyDialog()}
+      <Toast ref={toastRef} />
     </Worker>
   );
 };

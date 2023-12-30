@@ -11,17 +11,23 @@ import { Dropdown } from "primereact/dropdown";
 import { Button } from "primereact/button";
 import { Dialog } from "primereact/dialog";
 import { SelectItem, SelectItemOptionsType } from "primereact/selectitem";
+import { Empty } from "antd";
 import {
+  resetSelectedData,
+  updateInitData,
   updateLecturerList,
-  updateSchoolList, updateSelectedLecturer,
+  updateSelectedLecturer,
   updateSelectedSchool, updateSelectedSemester, updateSelectedSubject,
   updateSubjectList
 } from "../../store/slices/UploadFileSlice.ts";
 import { useAppDispatch, useAppSelector } from "../../store/Store.ts";
+import DocumentCard from "./DocumentCard.tsx";
+import RecentDocumentCard from "./RecentDocumentCard.tsx";
+import { updateSelectedFilteredCategory } from "../../store/slices/HomeSlice.ts";
 
 const HomePage: React.FC = () => {
   const { mostSearchSubject, defaultThumbnail } = useMockData();
-  const { getPercentageOfLikes } = useUtils();
+  const { getPercentageOfLikes, removeEmptyAndUndefinedParams } = useUtils();
   const navigate = useNavigate();
   const { repository } = usePageState();
   const [listDocs, setListDocs] = useState<any[]>([]);
@@ -36,8 +42,10 @@ const HomePage: React.FC = () => {
     selectedSchool,
     selectedLecturer,
     selectedSubject,
-    selectedSemester
+    selectedSemester,
+    semesterList
   } = useAppSelector(state => state.uploadFile);
+  const { selectedCategory, selectedCategoryName } = useAppSelector(state => state.home);
   //MOCK UI -> currently not working
   const sortOptions = [
     { name: "Nhiều lượt thích nhất", code: "mostlike" },
@@ -48,23 +56,16 @@ const HomePage: React.FC = () => {
     { name: "Ít bình luận nhất", code: "least commented" }
   ];
 
-  const semesterOptions = [
-    { label: "2023.1", value: "20231" },
-    { label: "2022.2", value: "20222" },
-    { label: "2022.1", value: "20221" },
-    { label: "2021.2", value: "20212" },
-    { label: "2021.1", value: "20211" }
-  ];
-
   const [selectedSortOption, setSelectedSortOption] = useState(sortOptions?.[0]?.code);
 
   const [recentDocs, setRecentDocs] = React.useState<any[]>([]);
   const dispatch = useAppDispatch();
   const [needFilter, setNeedFilter] = React.useState(false);
-
+  const [filterKeyword, setFilterKeyword] = React.useState("");
+  // const [isFilterReset, setIsFilterReset] = React.useState(false)
   const fetchInitData = async () => {
     const res = await repository.getRecentDocs();
-    setRecentDocs(res?.data as any[]);
+    setRecentDocs(res?.data?.data as any[]);
     const schoolRes = await repository.getSchoolList();
     const newSchoolList: SelectItem[] | undefined = schoolRes?.data?.map(
       (school) =>
@@ -73,11 +74,26 @@ const HomePage: React.FC = () => {
           value: school.id
         }) as SelectItem
     );
-    dispatch(updateSchoolList(newSchoolList as SelectItemOptionsType));
+    const semesterRes = await repository.getSemesterList();
+    const newSemesterList: SelectItem[] | undefined = semesterRes?.data?.map(
+      (semester) =>
+        ({
+          label: semester.name,
+          value: semester.id
+        }) as SelectItem
+    );
+    dispatch(updateInitData({
+      schoolList: newSchoolList as SelectItemOptionsType,
+      semesterList: newSemesterList as SelectItemOptionsType
+    }));
   };
 
   React.useEffect(() => {
     fetchInitData();
+
+    // return () => {
+    //   dispatch(resetHomeState())
+    // }
   }, []);
 
   React.useEffect(() => {
@@ -111,19 +127,38 @@ const HomePage: React.FC = () => {
       const params = {
         page: 0,
         per_page: 20,
-        lecturer_id: selectedLecturer,
-        subject_id: selectedSubject,
-        school_id: selectedSchool,
-        keyword: searchKey
+        keyword: searchKey,
+        category_id: selectedCategory
       };
       const res = await repository.getAllDocs(params);
-      if (searchKey !== "" || needFilter) {
+      if (searchKey !== "" || selectedCategory !== undefined) {
         setIsSearched(true);
       } else {
         setIsSearched(false);
       }
-      const newDocsReverse = res?.data?.reverse().slice(0,4)
-      setListDocs(newDocsReverse as any[]);
+      const newDocsReverse = (res?.data?.data as any[])?.reverse()?.slice(0, 4);
+      setListDocs(newDocsReverse);
+    } catch (error) {
+      //
+    } finally {
+      //
+    }
+  };
+
+  const fetchFilteredData = async () => {
+    try {
+      const params = {
+        page: 0,
+        per_page: 20,
+        lecturer_id: selectedLecturer,
+        subject_id: selectedSubject,
+        school_id: selectedSchool,
+        keyword: filterKeyword
+      };
+      const res = await repository.getAllDocs(removeEmptyAndUndefinedParams(params));
+      setIsSearched(true);
+      const newDocsReverse = (res?.data?.data as any[])?.reverse()?.slice(0, 4);
+      setListDocs(newDocsReverse);
     } catch (error) {
       //
     } finally {
@@ -138,15 +173,31 @@ const HomePage: React.FC = () => {
     return () => {
       clearTimeout(timeId);
     };
-  }, [searchKey, needFilter]);
+  }, [searchKey, selectedCategory]);
+
+  React.useEffect(() => {
+    fetchFilteredData();
+  }, [needFilter]);
 
   const onHandleSearch = (event: any) => {
     setSearchKey(event.target.value);
   };
 
+  const onHandleChangeKeyword = (event: any) => {
+    setFilterKeyword(event.target.value);
+  };
+
   const onApplyFilterCondition = () => {
     setNeedFilter(!needFilter);
     setIsShowFilterDialog(false);
+  };
+
+  const onResetFilter = () => {
+    setFilterKeyword("");
+    dispatch(resetSelectedData());
+    // setIsSearched(false);
+    // setIsFilterReset(!isFilterReset)
+    // setIsShowFilterDialog(false);
   };
 
   const footerContent = (
@@ -163,6 +214,11 @@ const HomePage: React.FC = () => {
         severity={"secondary"}
         onClick={() => setIsShowFilterDialog(false)}
         // className="p-button-text"
+      />
+      <Button
+        onClick={onResetFilter}
+        severity="danger"
+        label={"Đặt lại"}
       />
       <Button label="Tìm kiếm" icon="pi pi-search" onClick={onApplyFilterCondition} autoFocus />
     </div>
@@ -190,8 +246,8 @@ const HomePage: React.FC = () => {
         <span style={{ width: "100%" }} className="p-input-icon-left">
           <i className="pi pi-search" />
           <InputText
-            value={searchKey}
-            onChange={onHandleSearch}
+            value={filterKeyword}
+            onChange={onHandleChangeKeyword}
             style={{ width: "100%" }}
             placeholder="Nhập từ khóa (tên tài liệu, giảng viên, môn học)"
           />
@@ -239,7 +295,7 @@ const HomePage: React.FC = () => {
             <Dropdown
               value={selectedSemester}
               onChange={(e) => dispatch(updateSelectedSemester(e.value))}
-              options={semesterOptions}
+              options={semesterList}
               optionLabel="label"
               optionValue="value"
               placeholder="Chọn học kỳ"
@@ -293,6 +349,14 @@ const HomePage: React.FC = () => {
     </Dialog>
   );
 
+  const getSearchQuery = () => {
+    if (searchKey) {
+      return searchKey;
+    } else if (selectedCategoryName) {
+      return selectedCategoryName;
+    } else return undefined;
+  };
+
   return (
     <React.Fragment>
       <div className="home-page-wrapper">
@@ -320,8 +384,7 @@ const HomePage: React.FC = () => {
             <div className="list-last-seen-document">
               <div className="title-container">
                 <div className="list-title">
-                  Đã tìm thấy {listDocs?.length} kết quả cho{" "}
-                  <strong style={{ fontWeight: "700", fontSize: "20px" }}>{searchKey}</strong>
+                  Đã tìm thấy {listDocs?.length} kết quả cho {getSearchQuery()}
                 </div>
                 <Dropdown
                   style={{
@@ -335,7 +398,11 @@ const HomePage: React.FC = () => {
                 />
               </div>
               <div className="list-content">
-                {listDocs?.map((doc) => {
+                {listDocs?.length === 0 &&
+                  <div style={{ width: "100%", alignItems: "center", justifyContent: "center", display: "flex" }}>
+                    <Empty />
+                  </div>}
+                {listDocs && listDocs?.length > 0 && listDocs?.map((doc) => {
                   return (
                     <div
                       key={doc?.id}
@@ -374,7 +441,7 @@ const HomePage: React.FC = () => {
               <div className="title-container">
                 <div className="list-title">Có thể bạn quan tâm</div>
                 <div className="view-all" onClick={() => {
-                  navigate("/may-you-care")
+                  navigate("/may-you-care");
                 }}>
                   Xem tất cả
                   <i style={{ fontSize: "12px" }} className="pi pi-chevron-right"></i>
@@ -382,17 +449,13 @@ const HomePage: React.FC = () => {
               </div>
 
               <div className="list-course-content">
-                {listDocs?.map((doc) => {
+                {listDocs?.length === 0 &&
+                  <div style={{ width: "100%", alignItems: "center", justifyContent: "center", display: "flex" }}>
+                    <Empty />
+                  </div>}
+                {listDocs && listDocs?.length > 0 && listDocs?.map((doc) => {
                   return (
-                    <div key={doc?.id} className="course-card" onClick={() => {
-                      navigate(`${AppRoute.SubjectDocs}/TruongCNTT/${doc?.id}`);
-                    }}>
-                      <img src={doc?.imageUrl ?? defaultThumbnail} alt="course-img" className="course-image" />
-                      <div className="course-content">
-                        <div className="title">{doc?.title}</div>
-                        <div className="description">{doc?.description}</div>
-                      </div>
-                    </div>
+                    <DocumentCard key={doc?.id} doc={doc} />
                   );
                 })}
               </div>
@@ -404,7 +467,9 @@ const HomePage: React.FC = () => {
               <div className="list-title">Học phần hay được tìm kiếm</div>
               {mostSearchSubject().map((subject) => {
                 return (
-                  <div key={subject.title} className="list-item-wrapper">
+                  <div key={subject.title} className="list-item-wrapper" onClick={() => {
+                    dispatch(updateSelectedFilteredCategory(subject?.cateCode));
+                  }}>
                     <i className="pi pi-folder"></i>
                     <div className="item-right">
                       {subject.title}
@@ -418,7 +483,7 @@ const HomePage: React.FC = () => {
               <div className="title-container">
                 <div className="list-title">Có thể bạn quan tâm</div>
                 <div className="view-all" onClick={() => {
-                  navigate("/may-you-care")
+                  navigate("/may-you-care");
                 }}>
                   Xem tất cả
                   <i style={{ fontSize: "12px" }} className="pi pi-chevron-right"></i>
@@ -426,18 +491,13 @@ const HomePage: React.FC = () => {
               </div>
 
               <div className="list-course-content">
-                {listDocs?.map((doc) => {
+                {listDocs?.length === 0 &&
+                  <div style={{ width: "100%", alignItems: "center", justifyContent: "center", display: "flex" }}>
+                    <Empty />
+                  </div>}
+                {listDocs && listDocs?.length > 0 && listDocs?.map((doc) => {
                   return (
-                    <div key={doc?.id} className="course-card"
-                         onClick={() => {
-                           navigate(`${AppRoute.SubjectDocs}/TruongCNTT/${doc?.id}`);
-                         }}>
-                      <img src={doc?.imageUrl ?? defaultThumbnail} alt="course-img" className="course-image" />
-                      <div className="course-content">
-                        <div className="title">{doc?.title}</div>
-                        <div className="description">{doc?.description}</div>
-                      </div>
-                    </div>
+                    <DocumentCard key={doc?.id} doc={doc} />
                   );
                 })}
               </div>
@@ -446,44 +506,21 @@ const HomePage: React.FC = () => {
               <div className="title-container">
                 <div className="list-title">Được xem gần đây</div>
                 <div className="view-all" onClick={() => {
-                  navigate("/list-recent-docs")
+                  navigate("/list-recent-docs");
                 }}>
                   Xem tất cả
                   <i style={{ fontSize: "12px" }} className="pi pi-chevron-right"></i>
                 </div>
               </div>
               <div className="list-content">
-                {recentDocs?.map((doc) => {
+                {recentDocs?.length === 0 &&
+                  <div style={{ width: "100%", alignItems: "center", justifyContent: "center", display: "flex" }}>
+                    <Empty />
+                  </div>}
+
+                {recentDocs && recentDocs?.length > 0 && recentDocs?.map((doc) => {
                   return (
-                    <div
-                      key={doc?.document?.id}
-                      className="doc-card"
-                      onClick={() => {
-                        navigate(`${AppRoute.SubjectDocs}/TruongCNTT/${doc?.document?.id}`);
-                      }}
-                    >
-                      <img
-                        className="thumbnail"
-                        src={doc?.document?.thumbnail ?? defaultThumbnail}
-                        alt="last-seen-img"
-                      />
-                      <div className="doc-text-content">
-                        <div className="doc-title">{doc?.document?.title}</div>
-                        <div className={"tags-container"}>
-                          {doc?.document?.categories
-                            ?.slice(0, 2)
-                            .map((cate: any) => <Chip key={cate?.id} label={cate?.name} />)}
-                        </div>
-                      </div>
-                      <div className="like-container">
-                        <Chip
-                          icon={"pi pi-thumbs-up-fill"}
-                          label={`${getPercentageOfLikes(doc?.liked, doc?.disliked).toString()}% (${
-                            doc?.liked ?? 100
-                          })`}
-                        />
-                      </div>
-                    </div>
+                    <RecentDocumentCard key={doc?.document?.id} doc={doc?.document} />
                   );
                 })}
               </div>

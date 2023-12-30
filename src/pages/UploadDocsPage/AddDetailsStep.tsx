@@ -11,18 +11,19 @@ import { Dropdown } from "primereact/dropdown";
 import usePageState from "../../hooks/usePageState.ts";
 import {
   updateDocDescription,
-  updateDocTitle,
+  updateDocTitle, updateInitData,
   updateLecturerList,
   updateListCategory,
-  updateSchoolList,
-  updateSelectedCategories,
+  updateSelectedCategories, updateSelectedEvidence, updateSelectedFiles,
   updateSelectedLecturer,
   updateSelectedSchool,
   updateSelectedSemester,
   updateSelectedSubject,
-  updateSubjectList,
+  updateSubjectList
 } from "../../store/slices/UploadFileSlice.ts";
 import { SelectItem, SelectItemOptionsType } from "primereact/selectitem";
+import { FileUpload, FileUploadSelectEvent } from "primereact/fileupload";
+import { Chip } from "primereact/chip";
 
 const AddDetailsStep: React.FC = () => {
   const {
@@ -39,19 +40,14 @@ const AddDetailsStep: React.FC = () => {
     docTitle,
     docDescription,
     selectedSemester,
+    semesterList,
+    selectedEvidence
   } = useAppSelector((state) => state.uploadFile);
   const { repository } = usePageState();
   const { calcFileSizeInMB } = useUtils();
   // const [selectedCategories, setSelectedCategories] = React.useState(null);
   const dispatch = useAppDispatch();
-
-  const semesterOptions = [
-    { label: "2023.1", value: "20231" },
-    { label: "2022.2", value: "20222" },
-    { label: "2022.1", value: "20221" },
-    { label: "2021.2", value: "20212" },
-    { label: "2021.1", value: "20211" },
-  ];
+  const evidenceUploaderRef = React.useRef<FileUpload>(null);
 
   React.useEffect(() => {
     const fetchInitData = async () => {
@@ -72,7 +68,18 @@ const AddDetailsStep: React.FC = () => {
             value: school.id,
           }) as SelectItem,
       );
-      dispatch(updateSchoolList(newSchoolList as SelectItemOptionsType));
+      const semesterRes = await repository.getSemesterList()
+      const newSemesterList: SelectItem[] | undefined = semesterRes?.data?.map(
+        (semester) =>
+          ({
+            label: semester.name,
+            value: semester.id,
+          }) as SelectItem,
+      );
+      dispatch(updateInitData({
+        schoolList: newSchoolList as SelectItemOptionsType,
+        semesterList: newSemesterList as SelectItemOptionsType
+      }));
     };
 
     if (isFirstLoad) {
@@ -105,6 +112,25 @@ const AddDetailsStep: React.FC = () => {
       fetchLecturerAndSubjectList();
     }
   }, [selectedSchool]);
+
+  const renderPreviewFile = (file: any): React.ReactNode => {
+    return (
+      <Chip
+        label={file?.name}
+        icon="pi pi-file"
+        removable
+        onRemove={() => {
+          evidenceUploaderRef.current?.setFiles(file);
+          dispatch(updateSelectedEvidence(file));
+        }}
+      />
+    );
+  };
+
+  const onSelectEvidence = (event: FileUploadSelectEvent) => {
+    console.log("HTD", event.files);
+    dispatch(updateSelectedEvidence(event.files?.[0]));
+  };
 
   return (
     <div className="add-details-container">
@@ -192,7 +218,7 @@ const AddDetailsStep: React.FC = () => {
               <Dropdown
                 value={selectedSemester}
                 onChange={(e) => dispatch(updateSelectedSemester(e.value))}
-                options={semesterOptions}
+                options={semesterList}
                 optionLabel="label"
                 optionValue="value"
                 placeholder="Chọn học kỳ"
@@ -215,28 +241,31 @@ const AddDetailsStep: React.FC = () => {
                     className="w-full"
                   />
                 </div>
-                {/*<div className="display-column-gap-10 flex-grow-1">*/}
-                {/*  <div className={"field-title"}>Thành tích môn học</div>*/}
-                {/*  <FileUpload*/}
-                {/*    style={{*/}
-                {/*      width: "100%",*/}
-                {/*    }}*/}
-                {/*    mode="basic"*/}
-                {/*    name="demo[]"*/}
-                {/*    accept="image/*"*/}
-                {/*    maxFileSize={1000000}*/}
-                {/*    chooseOptions={{*/}
-                {/*      icon: "pi pi-upload",*/}
-                {/*      label: "Tải ảnh lên",*/}
-                {/*      style: {*/}
-                {/*        width: "100%",*/}
-                {/*        background: "white",*/}
-                {/*        color: "var(--gray-500)",*/}
-                {/*        border: "1px solid var(--gray-300)",*/}
-                {/*      },*/}
-                {/*    }}*/}
-                {/*  />*/}
-                {/*</div>*/}
+                <div className="display-column-gap-10 flex-grow-1">
+                  <div className={"field-title"}>Thành tích môn học</div>
+                  <FileUpload
+                    ref={evidenceUploaderRef}
+                    style={{
+                      width: "100%",
+                    }}
+                    mode="basic"
+                    name="demo[]"
+                    accept="image/*"
+                    maxFileSize={1000000}
+                    chooseOptions={{
+                      icon: "pi pi-upload",
+                      label: "Tải ảnh lên",
+                      style: {
+                        width: "100%",
+                        background: "white",
+                        color: "var(--gray-500)",
+                        border: "1px solid var(--gray-300)",
+                      },
+                    }}
+                    itemTemplate={renderPreviewFile}
+                    onSelect={onSelectEvidence}
+                  />
+                </div>
               </div>
               <div className="display-column-gap-10">
                 <div className={"field-title"}>Môn học</div>

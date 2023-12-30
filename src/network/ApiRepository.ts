@@ -22,13 +22,13 @@ export default class ApiRepository {
   }
 
   getAllDocs(params: any) {
-    return this.axiosClient.get<any[]>(`/api/document/list/all`, {
+    return this.axiosClient.get<any>(`/api/document/list/all`, {
       params: params
     });
   }
 
   getRecentDocs() {
-    return this.axiosClient.get<any[]>("/api/document/list/recent-view");
+    return this.axiosClient.get<any>("/api/document/list/recent-view");
   }
 
   getDocDetails(docId: string) {
@@ -41,6 +41,10 @@ export default class ApiRepository {
 
   getSchoolList() {
     return this.axiosClient.get<any[]>("/api/school/list");
+  }
+
+  getSemesterList() {
+    return this.axiosClient.get<any[]>("/api/semester/list")
   }
 
   getLecturerList(schoolId: string) {
@@ -70,6 +74,13 @@ export default class ApiRepository {
     return this.axiosClient.post<DocumentModel>("/api/document/comment", {
       id: docId,
       content: content
+    })
+  }
+
+  verifyDocument(docId: string, verifyValue: boolean) {
+    return this.axiosClient.post<DocumentModel>("/api/document/verify-document", {
+      id: docId,
+      is_verify: verifyValue
     })
   }
 }

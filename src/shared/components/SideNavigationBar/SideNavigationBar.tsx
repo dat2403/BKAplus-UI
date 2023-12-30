@@ -24,44 +24,44 @@ const SideNavigationBar = () => {
     {
       label: "Đăng xuất",
       icon: "pi pi-sign-out",
-      command: signOut,
-    },
+      command: signOut
+    }
   ];
 
   const sideNavButtonList: ISideNavButton[] = [
     {
       title: "Trang chủ",
       iconName: "pi-home",
-      isFocused: location.pathname === AppRoute.HomePage,
+      isFocused: location.pathname === AppRoute.HomePage || location.pathname.includes("/may-you-care") || location.pathname.includes("/recent"),
       onNavigate: () => {
         navigate(AppRoute.HomePage);
-      },
+      }
     },
     {
       title: "Tài liệu môn học",
       iconName: "pi-book",
       isFocused: location.pathname.includes(AppRoute.SubjectDocs),
       onNavigate: () => {
-        navigate(`${AppRoute.SubjectDocs}/TruongCNTT/12`);
-      },
+        // navigate(`${AppRoute.SubjectDocs}/TruongCNTT/12`);
+      }
     },
     {
       title: "Tài liệu yêu thích",
       iconName: "pi-heart",
       isFocused: location.pathname.includes(AppRoute.FavoriteDocs),
       onNavigate: () => {
-        navigate(AppRoute.FavoriteDocs);
-      },
+        // navigate(AppRoute.FavoriteDocs);
+      }
     },
     {
       title: "Chương trình đào tạo",
       iconName: "pi-bars",
       isFocused: false,
-      onNavigate: () => {},
-    },
+      onNavigate: () => {
+      }
+    }
   ];
 
-  // @ts-ignore
   return (
     <div className="side-nav-bar-container">
       <div className="side-nav-header">
@@ -97,7 +97,7 @@ const SideNavigationBar = () => {
 
         <Button
           className="mt-5"
-          label="Tải tài liệu"
+          label="Tải lên tài liệu"
           icon="pi pi-cloud-upload"
           onClick={() => {
             navigate(AppRoute.UploadDocs);

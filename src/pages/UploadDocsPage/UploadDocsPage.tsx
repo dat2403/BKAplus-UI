@@ -9,8 +9,7 @@ import { useAppDispatch, useAppSelector } from "../../store/Store.ts";
 import { resetState } from "../../store/slices/UploadFileSlice.ts";
 import usePageState from "../../hooks/usePageState.ts";
 import { Toast } from "primereact/toast";
-import { useNavigate } from "react-router-dom";
-import { AppRoute } from "../../models/enums/AppRoute.ts";
+import CompleteStep from "./CompleteStep.tsx";
 
 const UploadDocsPage: React.FC = () => {
   const items = [{ label: "Tài liệu" }, { label: "Tải lên tài liệu" }];
@@ -18,7 +17,6 @@ const UploadDocsPage: React.FC = () => {
   const [activeStep, setActiveStep] = React.useState(0);
   const { repository } = usePageState();
   const toastRef = React.useRef<Toast>(null);
-  const navigate = useNavigate();
   const {
     docDescription,
     docTitle,
@@ -28,6 +26,8 @@ const UploadDocsPage: React.FC = () => {
     selectedSubject,
     // selectedSchool,
     selectedLecturer,
+    isContinueUpload,
+    selectedEvidence
   } = useAppSelector((state) => state.uploadFile);
 
   const stepItems = [
@@ -41,10 +41,15 @@ const UploadDocsPage: React.FC = () => {
     },
     {
       label: "Hoàn thành",
-      onRenderContent: () => <div></div>,
+      onRenderContent: () => <CompleteStep/>,
     },
   ];
   const dispatch = useAppDispatch();
+
+  React.useEffect(() => {
+    setActiveStep(0)
+    dispatch(resetState());
+  }, [isContinueUpload])
 
   React.useEffect(() => {
     return () => {
@@ -69,16 +74,6 @@ const UploadDocsPage: React.FC = () => {
       return currentStep;
     });
   };
-
-  const showSuccess = () => {
-    toastRef.current?.show({
-      severity: "success",
-      summary: "Success",
-      detail: "Message Content",
-      life: 3000,
-    });
-  };
-
   const onFinish = async () => {
     const categoriesString = selectedCategories.join(",");
     const requestBody = new FormData();
@@ -91,13 +86,14 @@ const UploadDocsPage: React.FC = () => {
     requestBody.append("categories", categoriesString);
     requestBody.append("lecturer_id", selectedLecturer);
     requestBody.append("subject_id", selectedSubject);
+    requestBody.append("semester_id", selectedSemester)
+    if(selectedEvidence) {
+      requestBody.append("evidence", selectedEvidence, selectedEvidence?.name)
+    }
     //Missing school id
     const uploadRes = await repository.uploadDocument(requestBody);
     if (uploadRes.status_code === 200) {
-      showSuccess();
-      // dispatch(resetState());
-      const url = `/${AppRoute.SubjectDocs}/TruongCNTT/${uploadRes?.data?.id as string}`
-      navigate(url);
+      onNextStep()
     }
   };
 
