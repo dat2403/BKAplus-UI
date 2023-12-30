@@ -14,7 +14,7 @@ const DocumentCard: React.FC<DocumentCardProps> = (props) => {
   const navigate = useNavigate();
   const { defaultThumbnail } = useMockData();
   return <div key={doc?.id} className="course-card" onClick={() => {
-    navigate(`${AppRoute.SubjectDocs}/TruongCNTT/${doc?.id}`);
+    navigate(`/${AppRoute.SubjectDocs}/TruongCNTT/${doc?.id}`);
   }}>
     <img src={defaultThumbnail} alt="course-img" className="course-image" />
     <div className="course-content">

@@ -9,7 +9,7 @@ import { defaultLayoutPlugin } from "@react-pdf-viewer/default-layout";
 import "@react-pdf-viewer/default-layout/lib/styles/index.css";
 import { Chip } from "primereact/chip";
 import { InputTextarea } from "primereact/inputtextarea";
-import { Avatar } from "primereact/avatar";
+// import { Avatar } from "primereact/avatar";
 import usePageState from "../../hooks/usePageState.ts";
 import Scaffold, { TypeLoading } from "../../shared/components/Scaffold/Scaffold.tsx";
 import { useUtils } from "../../shared/utility/Util.ts";
@@ -29,6 +29,7 @@ import {
   updateSelectedCategoryName,
   updateSelectedFilteredCategory
 } from "../../store/slices/HomeSlice.ts";
+import SeeMoreComment from "./SeeMoreComment.tsx";
 
 const DocDetailsPage: React.FC = () => {
   const items = [{ label: "SOICT" }, { label: "Lập trình mạng" }];
@@ -386,33 +387,7 @@ const DocDetailsPage: React.FC = () => {
                   </div>
                 </div>
                 <div className="right">
-                  {listComment?.map(comment => (<div className={"comment-item"}>
-                    <div className={"user-info"}>
-                      <Avatar
-                        label="V"
-                        size="large"
-                        style={{ backgroundColor: "#2196F3", color: "#ffffff" }}
-                        shape="circle"
-                        image={user?.user?.avatar}
-                      />
-                      <div>{user?.user?.full_name}</div>
-                    </div>
-                    <Button
-                      style={{ marginLeft: "10px" }}
-                      icon="pi pi-thumbs-up-fill"
-                      rounded
-                      severity="success"
-                      aria-label="Like"
-                    />
-                    <div className="created-time">Đăng tải
-                      ngày {formatUtcDateString(comment?.createdAt as string)}</div>
-                    <div className="content">{comment?.content}</div>
-                    <div className="who-liked">3 người đã thích</div>
-                    <div className={"button-group"}>
-                      <Button label="Like" />
-                      <Button label="Report" severity="secondary" />
-                    </div>
-                  </div>))}
+                  {listComment?.map(comment => (<SeeMoreComment key={comment?.id} comment={comment}/>))}
                 </div>
               </div>
             </div>

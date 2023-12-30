@@ -28,7 +28,7 @@ const RecentDocumentCard: React.FC<IRecentProps> = (props) => {
     key={doc?.id}
     className="doc-card"
     onClick={() => {
-      navigate(`${AppRoute.SubjectDocs}/TruongCNTT/${doc?.id}`);
+      navigate(`/${AppRoute.SubjectDocs}/TruongCNTT/${doc?.id}`);
     }}
   >
     <img
