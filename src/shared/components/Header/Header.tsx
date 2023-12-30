@@ -1,16 +1,16 @@
 import React from "react";
 import "./Header.scss";
-import Logo from "../../../assets/images/Logo.png";
 import { Chip } from "primereact/chip";
 import { useAppSelector } from "../../../store/Store.ts";
 import { Button } from "primereact/button";
+import Assets from "../../../assets/Assets.ts";
 
 const Header: React.FC = () => {
   const { user } = useAppSelector((state) => state.auth);
   return (
     <div className="header-container">
       <div className={"logo-container"}>
-        <img src={Logo} alt="" className={"img"} />
+        <img src={Assets.logo} alt="" className={"img"} />
         <div className="page-name">BK A+</div>
       </div>
       <div className={"profile-container"}>

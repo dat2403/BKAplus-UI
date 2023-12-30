@@ -20,8 +20,6 @@ import { TabPanel, TabView } from "primereact/tabview";
 import { DocumentModel, UserReactDocument } from "../../network/models/DocumentModel.ts";
 import { useAppDispatch, useAppSelector } from "../../store/Store.ts";
 import { UserRole } from "../../models/enums/UserRole.ts";
-import icVerify from "../../assets/icons/ic_verified.png";
-import icVerified from "../../assets/icons/is_after_verified.png";
 import { Dialog } from "primereact/dialog";
 import { Toast } from "primereact/toast";
 import {
@@ -30,6 +28,7 @@ import {
   updateSelectedFilteredCategory
 } from "../../store/slices/HomeSlice.ts";
 import SeeMoreComment from "./SeeMoreComment.tsx";
+import Assets from "../../assets/Assets.ts";
 
 const DocDetailsPage: React.FC = () => {
   const items = [{ label: "SOICT" }, { label: "Lập trình mạng" }];
@@ -230,7 +229,7 @@ const DocDetailsPage: React.FC = () => {
                     {isAdmin && <div style={{
                       cursor: "pointer"
                     }} onClick={onOpenVerifyDialog}>
-                      <img src={!isDocVerified ? icVerify : icVerified} alt="" style={{
+                      <img src={!isDocVerified ? Assets.icVerify : Assets.icVerified} alt="" style={{
                         width: "20px",
                         height: "20px"
                       }} />
