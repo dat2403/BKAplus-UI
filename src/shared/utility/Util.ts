@@ -1,7 +1,7 @@
 import React from "react";
-import * as dayjs from "dayjs";
-import * as utc from "dayjs/plugin/utc";
-import * as customParseFormat from "dayjs/plugin/customParseFormat";
+import dayjs from 'dayjs'
+import utc from "dayjs/plugin/utc";
+import customParseFormat from "dayjs/plugin/customParseFormat";
 import { SearchParams } from "../../models/SearchParams.ts";
 import _ from "lodash"
 
