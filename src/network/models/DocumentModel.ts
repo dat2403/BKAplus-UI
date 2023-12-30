@@ -14,6 +14,7 @@ export interface DocumentModel {
   files: File[];
   comments: any[];
   userReactDocuments: UserReactDocument[];
+  evidence_url?: string;
 }
 
 export interface Category {
