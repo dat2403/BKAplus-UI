@@ -14,7 +14,7 @@ import {
   updateDocTitle, updateInitData,
   updateLecturerList,
   updateListCategory,
-  updateSelectedCategories, updateSelectedEvidence, updateSelectedFiles,
+  updateSelectedCategories, updateSelectedEvidence,
   updateSelectedLecturer,
   updateSelectedSchool,
   updateSelectedSemester,
@@ -41,7 +41,6 @@ const AddDetailsStep: React.FC = () => {
     docDescription,
     selectedSemester,
     semesterList,
-    selectedEvidence
   } = useAppSelector((state) => state.uploadFile);
   const { repository } = usePageState();
   const { calcFileSizeInMB } = useUtils();

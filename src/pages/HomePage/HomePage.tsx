@@ -400,7 +400,7 @@ const HomePage: React.FC = () => {
               <div className="list-content">
                 {listDocs?.length === 0 &&
                   <div style={{ width: "100%", alignItems: "center", justifyContent: "center", display: "flex" }}>
-                    <Empty />
+                    <Empty description={"Không có dữ liệu"} />
                   </div>}
                 {listDocs && listDocs?.length > 0 && listDocs?.map((doc) => {
                   return (
@@ -451,7 +451,7 @@ const HomePage: React.FC = () => {
               <div className="list-course-content">
                 {listDocs?.length === 0 &&
                   <div style={{ width: "100%", alignItems: "center", justifyContent: "center", display: "flex" }}>
-                    <Empty />
+                    <Empty  description={"Không có dữ liệu"}/>
                   </div>}
                 {listDocs && listDocs?.length > 0 && listDocs?.map((doc) => {
                   return (
@@ -493,7 +493,7 @@ const HomePage: React.FC = () => {
               <div className="list-course-content">
                 {listDocs?.length === 0 &&
                   <div style={{ width: "100%", alignItems: "center", justifyContent: "center", display: "flex" }}>
-                    <Empty />
+                    <Empty description={"Không có dữ liệu"} />
                   </div>}
                 {listDocs && listDocs?.length > 0 && listDocs?.map((doc) => {
                   return (
@@ -515,7 +515,7 @@ const HomePage: React.FC = () => {
               <div className="list-content">
                 {recentDocs?.length === 0 &&
                   <div style={{ width: "100%", alignItems: "center", justifyContent: "center", display: "flex" }}>
-                    <Empty />
+                    <Empty description={"Không có dữ liệu"} />
                   </div>}
 
                 {recentDocs && recentDocs?.length > 0 && recentDocs?.map((doc) => {

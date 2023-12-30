@@ -88,7 +88,7 @@ const UploadDocsPage: React.FC = () => {
     requestBody.append("subject_id", selectedSubject);
     requestBody.append("semester_id", selectedSemester)
     if(selectedEvidence) {
-      requestBody.append("evidence", selectedEvidence, selectedEvidence?.name)
+      requestBody.append("files", selectedEvidence, selectedEvidence?.name);
     }
     //Missing school id
     const uploadRes = await repository.uploadDocument(requestBody);

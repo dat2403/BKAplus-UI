@@ -332,6 +332,12 @@ const DocDetailsPage: React.FC = () => {
                     ))}
                   </div>
                 </div>
+                {data?.evidence_url && <img style={{
+                  width: "100%",
+                  height: "250px",
+                  objectFit: "contain",
+                  marginTop: "12px",
+                }} alt={""} src={`${AppConfig.baseURL}/files/${data?.evidence_url}`}/>}
               </div>
             </div>
             <div className="comment-container">
