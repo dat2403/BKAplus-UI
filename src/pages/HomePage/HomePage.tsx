@@ -11,6 +11,7 @@ import { Dropdown } from "primereact/dropdown";
 import { Button } from "primereact/button";
 import { Dialog } from "primereact/dialog";
 import { SelectItem, SelectItemOptionsType } from "primereact/selectitem";
+import { Empty } from "antd";
 import {
   resetSelectedData,
   updateInitData,
@@ -22,10 +23,11 @@ import {
 import { useAppDispatch, useAppSelector } from "../../store/Store.ts";
 import DocumentCard from "./DocumentCard.tsx";
 import RecentDocumentCard from "./RecentDocumentCard.tsx";
+import { updateSelectedFilteredCategory } from "../../store/slices/HomeSlice.ts";
 
 const HomePage: React.FC = () => {
   const { mostSearchSubject, defaultThumbnail } = useMockData();
-  const { getPercentageOfLikes , removeEmptyAndUndefinedParams} = useUtils();
+  const { getPercentageOfLikes, removeEmptyAndUndefinedParams } = useUtils();
   const navigate = useNavigate();
   const { repository } = usePageState();
   const [listDocs, setListDocs] = useState<any[]>([]);
@@ -43,6 +45,7 @@ const HomePage: React.FC = () => {
     selectedSemester,
     semesterList
   } = useAppSelector(state => state.uploadFile);
+  const { selectedCategory, selectedCategoryName } = useAppSelector(state => state.home);
   //MOCK UI -> currently not working
   const sortOptions = [
     { name: "Nhiều lượt thích nhất", code: "mostlike" },
@@ -59,7 +62,7 @@ const HomePage: React.FC = () => {
   const dispatch = useAppDispatch();
   const [needFilter, setNeedFilter] = React.useState(false);
   const [filterKeyword, setFilterKeyword] = React.useState("");
-  const [isFilterReset, setIsFilterReset] = React.useState(false)
+  // const [isFilterReset, setIsFilterReset] = React.useState(false)
   const fetchInitData = async () => {
     const res = await repository.getRecentDocs();
     setRecentDocs(res?.data?.data as any[]);
@@ -87,6 +90,10 @@ const HomePage: React.FC = () => {
 
   React.useEffect(() => {
     fetchInitData();
+
+    // return () => {
+    //   dispatch(resetHomeState())
+    // }
   }, []);
 
   React.useEffect(() => {
@@ -120,10 +127,11 @@ const HomePage: React.FC = () => {
       const params = {
         page: 0,
         per_page: 20,
-        keyword: searchKey
+        keyword: searchKey,
+        category_id: selectedCategory
       };
       const res = await repository.getAllDocs(params);
-      if (searchKey !== "") {
+      if (searchKey !== "" || selectedCategory !== undefined) {
         setIsSearched(true);
       } else {
         setIsSearched(false);
@@ -165,7 +173,7 @@ const HomePage: React.FC = () => {
     return () => {
       clearTimeout(timeId);
     };
-  }, [searchKey, isFilterReset]);
+  }, [searchKey, selectedCategory]);
 
   React.useEffect(() => {
     fetchFilteredData();
@@ -187,9 +195,9 @@ const HomePage: React.FC = () => {
   const onResetFilter = () => {
     setFilterKeyword("");
     dispatch(resetSelectedData());
-    setIsSearched(false);
-    setIsFilterReset(!isFilterReset)
-    setIsShowFilterDialog(false);
+    // setIsSearched(false);
+    // setIsFilterReset(!isFilterReset)
+    // setIsShowFilterDialog(false);
   };
 
   const footerContent = (
@@ -341,6 +349,14 @@ const HomePage: React.FC = () => {
     </Dialog>
   );
 
+  const getSearchQuery = () => {
+    if (searchKey) {
+      return searchKey;
+    } else if (selectedCategoryName) {
+      return selectedCategoryName;
+    } else return undefined;
+  };
+
   return (
     <React.Fragment>
       <div className="home-page-wrapper">
@@ -368,8 +384,7 @@ const HomePage: React.FC = () => {
             <div className="list-last-seen-document">
               <div className="title-container">
                 <div className="list-title">
-                  Đã tìm thấy {listDocs?.length} kết quả cho{" "}
-                  <strong style={{ fontWeight: "700", fontSize: "20px" }}>{searchKey}</strong>
+                  Đã tìm thấy {listDocs?.length} kết quả cho {getSearchQuery()}
                 </div>
                 <Dropdown
                   style={{
@@ -383,6 +398,10 @@ const HomePage: React.FC = () => {
                 />
               </div>
               <div className="list-content">
+                {listDocs?.length === 0 &&
+                  <div style={{ width: "100%", alignItems: "center", justifyContent: "center", display: "flex" }}>
+                    <Empty />
+                  </div>}
                 {listDocs && listDocs?.length > 0 && listDocs?.map((doc) => {
                   return (
                     <div
@@ -430,6 +449,10 @@ const HomePage: React.FC = () => {
               </div>
 
               <div className="list-course-content">
+                {listDocs?.length === 0 &&
+                  <div style={{ width: "100%", alignItems: "center", justifyContent: "center", display: "flex" }}>
+                    <Empty />
+                  </div>}
                 {listDocs && listDocs?.length > 0 && listDocs?.map((doc) => {
                   return (
                     <DocumentCard key={doc?.id} doc={doc} />
@@ -444,7 +467,9 @@ const HomePage: React.FC = () => {
               <div className="list-title">Học phần hay được tìm kiếm</div>
               {mostSearchSubject().map((subject) => {
                 return (
-                  <div key={subject.title} className="list-item-wrapper">
+                  <div key={subject.title} className="list-item-wrapper" onClick={() => {
+                    dispatch(updateSelectedFilteredCategory(subject?.cateCode));
+                  }}>
                     <i className="pi pi-folder"></i>
                     <div className="item-right">
                       {subject.title}
@@ -466,6 +491,10 @@ const HomePage: React.FC = () => {
               </div>
 
               <div className="list-course-content">
+                {listDocs?.length === 0 &&
+                  <div style={{ width: "100%", alignItems: "center", justifyContent: "center", display: "flex" }}>
+                    <Empty />
+                  </div>}
                 {listDocs && listDocs?.length > 0 && listDocs?.map((doc) => {
                   return (
                     <DocumentCard key={doc?.id} doc={doc} />
@@ -484,9 +513,14 @@ const HomePage: React.FC = () => {
                 </div>
               </div>
               <div className="list-content">
+                {recentDocs?.length === 0 &&
+                  <div style={{ width: "100%", alignItems: "center", justifyContent: "center", display: "flex" }}>
+                    <Empty />
+                  </div>}
+
                 {recentDocs && recentDocs?.length > 0 && recentDocs?.map((doc) => {
                   return (
-                   <RecentDocumentCard key={doc?.document?.id} doc={doc?.document}/>
+                    <RecentDocumentCard key={doc?.document?.id} doc={doc?.document} />
                   );
                 })}
               </div>

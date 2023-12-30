@@ -6,7 +6,6 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { AppRoute } from "../../../models/enums/AppRoute";
 import { Menu } from "primereact/menu";
 import useAuth from "../../../hooks/useAuth.ts";
-import { PanelMenu } from "primereact/panelmenu";
 
 interface ISideNavButton {
   title: string;
@@ -33,7 +32,7 @@ const SideNavigationBar = () => {
     {
       title: "Trang chủ",
       iconName: "pi-home",
-      isFocused: location.pathname === AppRoute.HomePage,
+      isFocused: location.pathname === AppRoute.HomePage || location.pathname.includes("/may-you-care") || location.pathname.includes("/recent"),
       onNavigate: () => {
         navigate(AppRoute.HomePage);
       }
@@ -43,7 +42,7 @@ const SideNavigationBar = () => {
       iconName: "pi-book",
       isFocused: location.pathname.includes(AppRoute.SubjectDocs),
       onNavigate: () => {
-        navigate(`${AppRoute.SubjectDocs}/TruongCNTT/12`);
+        // navigate(`${AppRoute.SubjectDocs}/TruongCNTT/12`);
       }
     },
     {
@@ -51,7 +50,7 @@ const SideNavigationBar = () => {
       iconName: "pi-heart",
       isFocused: location.pathname.includes(AppRoute.FavoriteDocs),
       onNavigate: () => {
-        navigate(AppRoute.FavoriteDocs);
+        // navigate(AppRoute.FavoriteDocs);
       }
     },
     {
@@ -98,7 +97,7 @@ const SideNavigationBar = () => {
 
         <Button
           className="mt-5"
-          label="Tải tài liệu"
+          label="Tải lên tài liệu"
           icon="pi pi-cloud-upload"
           onClick={() => {
             navigate(AppRoute.UploadDocs);

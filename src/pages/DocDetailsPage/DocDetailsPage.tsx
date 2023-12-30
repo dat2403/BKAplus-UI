@@ -13,17 +13,22 @@ import { Avatar } from "primereact/avatar";
 import usePageState from "../../hooks/usePageState.ts";
 import Scaffold, { TypeLoading } from "../../shared/components/Scaffold/Scaffold.tsx";
 import { useUtils } from "../../shared/utility/Util.ts";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import useAsyncEffect from "../../hooks/useAsyncEffect.ts";
 import AppConfig from "../../shared/config/AppConfig.ts";
 import { TabPanel, TabView } from "primereact/tabview";
 import { DocumentModel, UserReactDocument } from "../../network/models/DocumentModel.ts";
-import { useAppSelector } from "../../store/Store.ts";
+import { useAppDispatch, useAppSelector } from "../../store/Store.ts";
 import { UserRole } from "../../models/enums/UserRole.ts";
 import icVerify from "../../assets/icons/ic_verified.png";
 import icVerified from "../../assets/icons/is_after_verified.png";
 import { Dialog } from "primereact/dialog";
 import { Toast } from "primereact/toast";
+import {
+  resetHomeState,
+  updateSelectedCategoryName,
+  updateSelectedFilteredCategory
+} from "../../store/slices/HomeSlice.ts";
 
 const DocDetailsPage: React.FC = () => {
   const items = [{ label: "SOICT" }, { label: "Lập trình mạng" }];
@@ -47,14 +52,19 @@ const DocDetailsPage: React.FC = () => {
   const reactOfThisUser = totalReacts?.find(react => react?.author?.id === user?.user?.id);
   const isUserLike = reactOfThisUser?.vote === true
   const isUserDislike = reactOfThisUser?.vote === false
+  const dispatch = useAppDispatch()
+  const navigate = useNavigate()
 
   const detailProperties = [
     { key: "Môn học", value: data?.subject?.name },
     { key: "Trường/Khoa", value: data?.lecturer?.school?.name },
     { key: "Giảng viên", value: data?.lecturer?.name },
-    { key: "Mô tả môn học", value: "" }
+    { key: "Mô tả môn học", value: data?.description }
   ];
 
+  React.useEffect(() => {
+    dispatch(resetHomeState())
+  }, [])
   const fetchDocDetailsData = async () => {
     try {
       setLoading(true);
@@ -302,7 +312,11 @@ const DocDetailsPage: React.FC = () => {
                   <div className="list-title">Từ khóa</div>
                   <div className={"tags-container"}>
                     {data?.categories?.map((cate: any) => (
-                      <Chip key={cate?.id} label={cate?.name} />
+                      <Chip key={cate?.id} label={cate?.name} onClick={() => {
+                        dispatch(updateSelectedFilteredCategory(cate?.id))
+                        dispatch(updateSelectedCategoryName(cate?.name))
+                        navigate("/")
+                      }}/>
                     ))}
                   </div>
                 </div>

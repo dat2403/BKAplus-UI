@@ -15,6 +15,15 @@ const RecentDocumentCard: React.FC<IRecentProps> = (props) => {
   const { defaultThumbnail } = useMockData();
   const { getPercentageOfLikes } = useUtils();
   const navigate = useNavigate();
+  const totalLike = doc?.userReactDocuments?.filter(react => react?.vote === true)?.length
+  const totalDislike = doc?.userReactDocuments?.filter(react => react?.vote === false)?.length
+
+  const getLikePercent = () => {
+    if(doc?.userReactDocuments?.length !== 0) {
+      return totalLike ?? 0;
+    } else return "0"
+  }
+
   return <div
     key={doc?.id}
     className="doc-card"
@@ -35,12 +44,10 @@ const RecentDocumentCard: React.FC<IRecentProps> = (props) => {
           .map((cate: any) => <Chip key={cate?.id} label={cate?.name} />)}
       </div>
     </div>
-    <div className="like-container">
+    <div className={`like-container ${doc?.userReactDocuments?.length === 0 ? "no-react" : ""}`}>
       <Chip
         icon={"pi pi-thumbs-up-fill"}
-        label={`${getPercentageOfLikes(100, 0).toString()}% (${
-          100
-        })`}
+        label={`${getPercentageOfLikes(totalLike ?? 0, totalDislike ?? 0).toString() ?? 0}% (${getLikePercent()})`}
       />
     </div>
   </div>;

@@ -18,6 +18,7 @@ export interface UploadFileState {
   selectedSemester: string;
   semesterList: SelectItemOptionsType;
   isContinueUpload: boolean;
+  selectedEvidence?: File;
 }
 
 const initialState: UploadFileState = {
@@ -36,6 +37,7 @@ const initialState: UploadFileState = {
   docTitle: "",
   docDescription: "",
   isContinueUpload: false,
+  selectedEvidence: undefined
 };
 
 export const uploadFileSlice = createSlice({
@@ -44,6 +46,9 @@ export const uploadFileSlice = createSlice({
   reducers: {
     updateSelectedFiles: (state, action: PayloadAction<File[]>) => {
       state.selectedFiles = action.payload;
+    },
+    updateSelectedEvidence: (state, action: PayloadAction<File>) => {
+      state.selectedEvidence = action.payload;
     },
     updateSelectedSemester: (state, action: PayloadAction<string>) => {
       state.selectedSemester = action.payload;
@@ -98,6 +103,7 @@ export const {
   updateDocTitle,
   updateDocDescription,
   updateSelectedFiles,
+  updateSelectedEvidence,
   updateInitData,
   resetState,
   resetSelectedData,

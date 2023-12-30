@@ -1,6 +1,7 @@
 interface IMostSearchSubject {
   title: string;
   link: string;
+  cateCode: number;
 }
 
 interface ICourse {
@@ -29,21 +30,25 @@ export const useMockData = () => {
       title: "Kinh tế chính trị Mac Lenin",
       //TODO
       link: "",
+      cateCode: 1,
     },
     {
       title: "Lịch sử Đảng",
       //TODO
       link: "",
+      cateCode: 2,
     },
     {
       title: "Tư tưởng Hồ Chí Minh",
       //TODO
       link: "",
+      cateCode: 3,
     },
     {
       title: "Triết học Mác Lê nin",
       //TODO
       link: "",
+      cateCode: 4,
     },
   ];
 

@@ -9,7 +9,6 @@ import { useAppDispatch, useAppSelector } from "../../store/Store.ts";
 import { resetState } from "../../store/slices/UploadFileSlice.ts";
 import usePageState from "../../hooks/usePageState.ts";
 import { Toast } from "primereact/toast";
-import { useNavigate } from "react-router-dom";
 import CompleteStep from "./CompleteStep.tsx";
 
 const UploadDocsPage: React.FC = () => {
@@ -27,8 +26,8 @@ const UploadDocsPage: React.FC = () => {
     selectedSubject,
     // selectedSchool,
     selectedLecturer,
-    isContinueUpload
-
+    isContinueUpload,
+    selectedEvidence
   } = useAppSelector((state) => state.uploadFile);
 
   const stepItems = [
@@ -88,6 +87,9 @@ const UploadDocsPage: React.FC = () => {
     requestBody.append("lecturer_id", selectedLecturer);
     requestBody.append("subject_id", selectedSubject);
     requestBody.append("semester_id", selectedSemester)
+    if(selectedEvidence) {
+      requestBody.append("evidence", selectedEvidence, selectedEvidence?.name)
+    }
     //Missing school id
     const uploadRes = await repository.uploadDocument(requestBody);
     if (uploadRes.status_code === 200) {

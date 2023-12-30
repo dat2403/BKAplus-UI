@@ -14,7 +14,10 @@ export type HtmlProps<T> = React.DetailedHTMLProps<React.HTMLAttributes<T>, T>;
 
 export const useUtils = () => {
   const getPercentageOfLikes = (liked: number = 100, disliked: number = 0): number => {
-    return Math.floor((liked / (liked + disliked)) * 100);
+    if(liked > 0 || disliked > 0) {
+      return Math.floor((liked / (liked + disliked)) * 100);
+    }
+    return 0;
   };
 
   const formatUtcDateString = (inputDate: string): string => {
