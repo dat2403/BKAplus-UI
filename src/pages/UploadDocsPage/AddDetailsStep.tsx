@@ -1,7 +1,6 @@
 import React from "react";
 import { useAppDispatch, useAppSelector } from "../../store/Store.ts";
 import "./AddDetailsStep.scss";
-import pdfIcon from "../../assets/icons/pdf-icon.png";
 import { useUtils } from "../../shared/utility/Util.ts";
 import { InputText } from "primereact/inputtext";
 import { InputTextarea } from "primereact/inputtextarea";
@@ -24,6 +23,7 @@ import {
 import { SelectItem, SelectItemOptionsType } from "primereact/selectitem";
 import { FileUpload, FileUploadSelectEvent } from "primereact/fileupload";
 import { Chip } from "primereact/chip";
+import Assets from "../../assets/Assets.ts";
 
 const AddDetailsStep: React.FC = () => {
   const {
@@ -142,7 +142,7 @@ const AddDetailsStep: React.FC = () => {
       >
         {selectedFiles?.map((selectedFile, index) => (
           <div key={index} className="selected-file-info">
-            <img src={pdfIcon} alt="" className={"selected-file-img"} />
+            <img src={Assets.icPDF} alt="" className={"selected-file-img"} />
             <div className="selected-file-text-wrapper">
               <div className={"title"}>{selectedFile?.name}</div>
               <div className={"size"}>{calcFileSizeInMB(selectedFile?.size)} MB</div>
