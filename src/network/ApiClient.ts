@@ -16,7 +16,7 @@ export default class ApiClient {
   private axiosClient = axios.create({
     baseURL: AppConfig.baseURL,
     responseType: "json",
-    timeout: 3000,
+    timeout: 30000,
     headers: {
       "Accept": "application/json",
       "Content-Type": "application/json"

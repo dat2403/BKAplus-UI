@@ -2,9 +2,10 @@ import React from "react";
 import { DocumentModel } from "../../network/models/DocumentModel.ts";
 import { AppRoute } from "../../models/enums/AppRoute.ts";
 import { Chip } from "primereact/chip";
-import { useMockData } from "../../shared/utility/useMockData.ts";
 import { useUtils } from "../../shared/utility/Util.ts";
 import { useNavigate } from "react-router-dom";
+import FileThumbnail from "./FileThumbnail.tsx";
+import AppConfig from "../../shared/config/AppConfig.ts";
 
 interface IRecentProps {
   doc: DocumentModel;
@@ -12,17 +13,16 @@ interface IRecentProps {
 
 const RecentDocumentCard: React.FC<IRecentProps> = (props) => {
   const { doc } = props;
-  const { defaultThumbnail } = useMockData();
   const { getPercentageOfLikes } = useUtils();
   const navigate = useNavigate();
-  const totalLike = doc?.userReactDocuments?.filter(react => react?.vote === true)?.length
-  const totalDislike = doc?.userReactDocuments?.filter(react => react?.vote === false)?.length
+  const totalLike = doc?.userReactDocuments?.filter(react => react?.vote === true)?.length;
+  const totalDislike = doc?.userReactDocuments?.filter(react => react?.vote === false)?.length;
 
   const getLikePercent = () => {
-    if(doc?.userReactDocuments?.length !== 0) {
+    if (doc?.userReactDocuments?.length !== 0) {
       return totalLike ?? 0;
-    } else return "0"
-  }
+    } else return "0";
+  };
 
   return <div
     key={doc?.id}
@@ -31,11 +31,12 @@ const RecentDocumentCard: React.FC<IRecentProps> = (props) => {
       navigate(`/${AppRoute.SubjectDocs}/TruongCNTT/${doc?.id}`);
     }}
   >
-    <img
-      className="thumbnail"
-      src={defaultThumbnail}
-      alt="last-seen-img"
-    />
+
+    <FileThumbnail
+      fileUrl={`${AppConfig.baseURL}/files/${doc?.files?.[0]?.url}`}
+      pageIndex={0}
+      width={230} />
+
     <div className="doc-text-content">
       <div className="doc-title">{doc?.title}</div>
       <div className={"tags-container"}>
