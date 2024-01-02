@@ -83,7 +83,7 @@ const DocDetailsPage: React.FC = () => {
         setData(res?.data);
         setTotalReacts(res?.data?.userReactDocuments);
         if (res?.data?.evidence_url) {
-          const base64Url = await getBase64(res?.data?.evidence_url);
+          const base64Url = await getBase64(`${AppConfig.baseURL}/files/${data?.evidence_url}`);
           setEvidenceUrl(base64Url);
           console.log(base64Url);
         }
