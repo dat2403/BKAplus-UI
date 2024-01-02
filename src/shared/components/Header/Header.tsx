@@ -4,12 +4,16 @@ import { Chip } from "primereact/chip";
 import { useAppSelector } from "../../../store/Store.ts";
 import { Button } from "primereact/button";
 import Assets from "../../../assets/Assets.ts";
+import { useNavigate } from "react-router-dom";
 
 const Header: React.FC = () => {
   const { user } = useAppSelector((state) => state.auth);
+  const navigate = useNavigate()
   return (
     <div className="header-container">
-      <div className={"logo-container"}>
+      <div className={"logo-container"} onClick={() => {
+        navigate("/")
+      }}>
         <img src={Assets.logo} alt="" className={"img"} />
         <div className="page-name">BK A+</div>
       </div>

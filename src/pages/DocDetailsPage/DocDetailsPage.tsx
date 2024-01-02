@@ -331,7 +331,7 @@ const DocDetailsPage: React.FC = () => {
                     ))}
                   </div>
                 </div>
-                {data?.evidence_url && <img style={{
+                {data?.evidence_url !== "0" && <img style={{
                   width: "100%",
                   height: "250px",
                   objectFit: "contain",

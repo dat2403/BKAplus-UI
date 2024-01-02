@@ -21,7 +21,7 @@ import {
 import { useAppDispatch, useAppSelector } from "../../store/Store.ts";
 import DocumentCard from "./DocumentCard.tsx";
 import RecentDocumentCard from "./RecentDocumentCard.tsx";
-import { updateSelectedFilteredCategory } from "../../store/slices/HomeSlice.ts";
+import { updateSelectedCategoryName, updateSelectedFilteredCategory } from "../../store/slices/HomeSlice.ts";
 
 const HomePage: React.FC = () => {
   const { mostSearchSubject } = useMockData();
@@ -439,6 +439,7 @@ const HomePage: React.FC = () => {
                 return (
                   <div key={subject.title} className="list-item-wrapper" onClick={() => {
                     dispatch(updateSelectedFilteredCategory(subject?.cateCode));
+                    dispatch(updateSelectedCategoryName(subject?.title))
                   }}>
                     <i className="pi pi-folder"></i>
                     <div className="item-right">
