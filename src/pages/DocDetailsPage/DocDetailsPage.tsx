@@ -2,9 +2,8 @@ import React, { useState } from "react";
 import { BreadCrumb } from "primereact/breadcrumb";
 import "./DocDetailsPage.scss";
 import { Button } from "primereact/button";
-import { Viewer } from "@react-pdf-viewer/core";
+import { Viewer, Worker } from "@react-pdf-viewer/core";
 import "@react-pdf-viewer/core/lib/styles/index.css";
-import { Worker } from "@react-pdf-viewer/core";
 import { defaultLayoutPlugin } from "@react-pdf-viewer/default-layout";
 import "@react-pdf-viewer/default-layout/lib/styles/index.css";
 import { Chip } from "primereact/chip";
@@ -64,13 +63,20 @@ const DocDetailsPage: React.FC = () => {
     { key: "Mô tả môn học", value: data?.description }
   ];
 
-   const getBase64 = async (url: string) => {
-    const response = await axios
-      .get(url, {
-        responseType: "arraybuffer"
-      });
-    return Buffer.from(response.data, "binary").toString("base64");
-  }
+  const getBase64 = async (url: string) => {
+    const base64 = await fetch(url)
+      .then(response => response.blob())
+      .then(blob => {
+        const reader = new FileReader();
+        reader.readAsDataURL(blob);
+        return new Promise((res) => {
+          reader.onloadend = () => {
+            res(reader.result);
+          }})
+      })
+
+    return base64
+  };
 
   React.useEffect(() => {
     dispatch(resetHomeState());
@@ -81,11 +87,12 @@ const DocDetailsPage: React.FC = () => {
       if (params?.docId) {
         const res = await repository.getDocDetails(params.docId);
         setData(res?.data);
+
+        console.log("Hello", res.data);
         setTotalReacts(res?.data?.userReactDocuments);
         if (res?.data?.evidence_url) {
-          const base64Url = await getBase64(res?.data?.evidence_url);
-          setEvidenceUrl(base64Url);
-          console.log(base64Url);
+          const base64Url = await getBase64(`${AppConfig.baseURL}/files/${res?.data?.evidence_url}`);
+          setEvidenceUrl(base64Url as any);
         }
         if (res?.data?.is_verified === true) {
           setIsDocVerified(res?.data?.is_verified as boolean);
