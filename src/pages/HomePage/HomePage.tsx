@@ -15,23 +15,29 @@ import {
   updateInitData,
   updateLecturerList,
   updateSelectedLecturer,
-  updateSelectedSchool, updateSelectedSemester, updateSelectedSubject,
-  updateSubjectList
+  updateSelectedSchool,
+  updateSelectedSemester,
+  updateSelectedSubject,
+  updateSubjectList,
 } from "../../store/slices/UploadFileSlice.ts";
 import { useAppDispatch, useAppSelector } from "../../store/Store.ts";
 import DocumentCard from "./DocumentCard.tsx";
 import RecentDocumentCard from "./RecentDocumentCard.tsx";
-import { updateSelectedCategoryName, updateSelectedFilteredCategory } from "../../store/slices/HomeSlice.ts";
+import {
+  updateSelectedCategoryName,
+  updateSelectedFilteredCategory,
+} from "../../store/slices/HomeSlice.ts";
+import { modalActions } from "../../store/slices/ModalSlice.ts";
 
 const HomePage: React.FC = () => {
   const { mostSearchSubject } = useMockData();
-  const {  removeEmptyAndUndefinedParams } = useUtils();
+  const { removeEmptyAndUndefinedParams } = useUtils();
   const navigate = useNavigate();
   const { repository } = usePageState();
   const [listDocs, setListDocs] = useState<any[]>([]);
   const [searchKey, setSearchKey] = React.useState("");
   const [isSearched, setIsSearched] = useState(false);
-  const [isShowFilterDialog, setIsShowFilterDialog] = React.useState(false);
+  // const [isShowFilterDialog, setIsShowFilterDialog] = React.useState(false);
   const {
     isFirstLoad,
     schoolList,
@@ -41,9 +47,10 @@ const HomePage: React.FC = () => {
     selectedLecturer,
     selectedSubject,
     selectedSemester,
-    semesterList
-  } = useAppSelector(state => state.uploadFile);
-  const { selectedCategory, selectedCategoryName } = useAppSelector(state => state.home);
+    semesterList,
+  } = useAppSelector((state) => state.uploadFile);
+  const { selectedCategory, selectedCategoryName } = useAppSelector((state) => state.home);
+  const { isOpen: isShowFilterDialog } = useAppSelector((state) => state.model);
   //MOCK UI -> currently not working
   const sortOptions = [
     { name: "Nhiều lượt thích nhất", code: "mostlike" },
@@ -51,7 +58,7 @@ const HomePage: React.FC = () => {
     { name: "Cũ nhất", code: "oldest" },
     { name: "Tài liệu uy tín", code: "verified" },
     { name: "Nhiều bình luận nhất", code: "most commented" },
-    { name: "Ít bình luận nhất", code: "least commented" }
+    { name: "Ít bình luận nhất", code: "least commented" },
   ];
 
   const [selectedSortOption, setSelectedSortOption] = useState(sortOptions?.[0]?.code);
@@ -60,7 +67,6 @@ const HomePage: React.FC = () => {
   const dispatch = useAppDispatch();
   const [needFilter, setNeedFilter] = React.useState(false);
   const [filterKeyword, setFilterKeyword] = React.useState("");
-  // const [isFilterReset, setIsFilterReset] = React.useState(false)
   const fetchInitData = async () => {
     const res = await repository.getRecentDocs();
     setRecentDocs(res?.data?.data as any[]);
@@ -69,21 +75,23 @@ const HomePage: React.FC = () => {
       (school) =>
         ({
           label: school.name,
-          value: school.id
-        }) as SelectItem
+          value: school.id,
+        } as SelectItem)
     );
     const semesterRes = await repository.getSemesterList();
     const newSemesterList: SelectItem[] | undefined = semesterRes?.data?.map(
       (semester) =>
         ({
           label: semester.name,
-          value: semester.id
-        }) as SelectItem
+          value: semester.id,
+        } as SelectItem)
     );
-    dispatch(updateInitData({
-      schoolList: newSchoolList as SelectItemOptionsType,
-      semesterList: newSemesterList as SelectItemOptionsType
-    }));
+    dispatch(
+      updateInitData({
+        schoolList: newSchoolList as SelectItemOptionsType,
+        semesterList: newSemesterList as SelectItemOptionsType,
+      })
+    );
   };
 
   React.useEffect(() => {
@@ -102,15 +110,15 @@ const HomePage: React.FC = () => {
         (lecturer) =>
           ({
             label: lecturer.name,
-            value: lecturer.id
-          }) as SelectItem
+            value: lecturer.id,
+          } as SelectItem)
       );
       const newSubjectList = subjectRes?.data?.map(
         (sub) =>
           ({
             label: sub.name,
-            value: sub.id
-          }) as SelectItem
+            value: sub.id,
+          } as SelectItem)
       );
       dispatch(updateLecturerList(newLecturerList as SelectItemOptionsType));
       dispatch(updateSubjectList(newSubjectList as SelectItemOptionsType));
@@ -126,7 +134,7 @@ const HomePage: React.FC = () => {
         page: 0,
         per_page: 20,
         keyword: searchKey,
-        category_id: selectedCategory
+        category_id: selectedCategory,
       };
       const res = await repository.getAllDocs(params);
       if (searchKey !== "" || selectedCategory !== undefined) {
@@ -151,7 +159,7 @@ const HomePage: React.FC = () => {
         lecturer_id: selectedLecturer,
         subject_id: selectedSubject,
         school_id: selectedSchool,
-        keyword: filterKeyword
+        keyword: filterKeyword,
       };
       const res = await repository.getAllDocs(removeEmptyAndUndefinedParams(params));
       setIsSearched(true);
@@ -177,6 +185,9 @@ const HomePage: React.FC = () => {
     fetchFilteredData();
   }, [needFilter]);
 
+  const setIsShowFilterDialog = (isOpen: boolean) => dispatch(modalActions.setIsOpen(isOpen));
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const onHandleSearch = (event: any) => {
     setSearchKey(event.target.value);
   };
@@ -203,7 +214,7 @@ const HomePage: React.FC = () => {
       style={{
         display: "flex",
         gap: "10px",
-        justifyContent: "flex-end"
+        justifyContent: "flex-end",
       }}
     >
       <Button
@@ -213,11 +224,7 @@ const HomePage: React.FC = () => {
         onClick={() => setIsShowFilterDialog(false)}
         // className="p-button-text"
       />
-      <Button
-        onClick={onResetFilter}
-        severity="danger"
-        label={"Đặt lại"}
-      />
+      <Button onClick={onResetFilter} severity="danger" label={"Đặt lại"} />
       <Button label="Tìm kiếm" icon="pi pi-search" onClick={onApplyFilterCondition} autoFocus />
     </div>
   );
@@ -238,7 +245,7 @@ const HomePage: React.FC = () => {
           display: "flex",
           flexDirection: "column",
           // maxWidth: "660px",
-          gap: "30px"
+          gap: "30px",
         }}
       >
         <span style={{ width: "100%" }} className="p-input-icon-left">
@@ -257,7 +264,7 @@ const HomePage: React.FC = () => {
             alignItems: "center",
             width: "100%",
             gap: "24px",
-            paddingBottom: "40px"
+            paddingBottom: "40px",
           }}
         >
           <div
@@ -266,7 +273,7 @@ const HomePage: React.FC = () => {
               flex: 1,
               gap: "8px",
               display: "flex",
-              flexDirection: "column"
+              flexDirection: "column",
             }}
           >
             <div>Khoa</div>
@@ -286,7 +293,7 @@ const HomePage: React.FC = () => {
               flex: 1,
               gap: "8px",
               display: "flex",
-              flexDirection: "column"
+              flexDirection: "column",
             }}
           >
             <div>Học kỳ</div>
@@ -300,48 +307,50 @@ const HomePage: React.FC = () => {
               className="w-full"
             />
           </div>
-          {selectedSchool !== "" && (<React.Fragment>
-            <div
-              style={{
-                minWidth: "40%",
-                flex: 1,
-                gap: "8px",
-                display: "flex",
-                flexDirection: "column"
-              }}
-            >
-              <div>Giảng viên</div>
-              <Dropdown
-                value={selectedLecturer}
-                onChange={(e) => dispatch(updateSelectedLecturer(e.value))}
-                options={lecturerList}
-                optionLabel="label"
-                optionValue="value"
-                placeholder={"Chọn giảng viên"}
-                className="w-full"
-              />
-            </div>
-            <div
-              style={{
-                minWidth: "40%",
-                flex: 1,
-                gap: "8px",
-                display: "flex",
-                flexDirection: "column"
-              }}
-            >
-              <div>Môn học</div>
-              <Dropdown
-                value={selectedSubject}
-                onChange={(e) => dispatch(updateSelectedSubject(e.value))}
-                options={subjectList}
-                optionLabel="label"
-                optionValue="value"
-                placeholder="Chọn môn học"
-                className="w-full"
-              />
-            </div>
-          </React.Fragment>)}
+          {selectedSchool !== "" && (
+            <React.Fragment>
+              <div
+                style={{
+                  minWidth: "40%",
+                  flex: 1,
+                  gap: "8px",
+                  display: "flex",
+                  flexDirection: "column",
+                }}
+              >
+                <div>Giảng viên</div>
+                <Dropdown
+                  value={selectedLecturer}
+                  onChange={(e) => dispatch(updateSelectedLecturer(e.value))}
+                  options={lecturerList}
+                  optionLabel="label"
+                  optionValue="value"
+                  placeholder={"Chọn giảng viên"}
+                  className="w-full"
+                />
+              </div>
+              <div
+                style={{
+                  minWidth: "40%",
+                  flex: 1,
+                  gap: "8px",
+                  display: "flex",
+                  flexDirection: "column",
+                }}
+              >
+                <div>Môn học</div>
+                <Dropdown
+                  value={selectedSubject}
+                  onChange={(e) => dispatch(updateSelectedSubject(e.value))}
+                  options={subjectList}
+                  optionLabel="label"
+                  optionValue="value"
+                  placeholder="Chọn môn học"
+                  className="w-full"
+                />
+              </div>
+            </React.Fragment>
+          )}
         </div>
       </div>
     </Dialog>
@@ -363,7 +372,7 @@ const HomePage: React.FC = () => {
             display: "flex",
             alignItems: "center",
             gap: "20px",
-            width: "100%"
+            width: "100%",
           }}
         >
           <span className="p-input-icon-right search-box-container">
@@ -371,7 +380,8 @@ const HomePage: React.FC = () => {
             <InputText
               placeholder="Tìm kiếm các khóa học, sách hoặc tài liệu"
               value={searchKey}
-              onChange={onHandleSearch}
+              // onChange={onHandleSearch}
+              onClick={() => setIsShowFilterDialog(true)}
             />
           </span>
           <Button icon={"pi pi-filter"} onClick={() => setIsShowFilterDialog(true)} />
@@ -386,7 +396,7 @@ const HomePage: React.FC = () => {
                 </div>
                 <Dropdown
                   style={{
-                    width: "250px"
+                    width: "250px",
                   }}
                   value={selectedSortOption}
                   onChange={(e) => setSelectedSortOption(e.value)}
@@ -396,38 +406,57 @@ const HomePage: React.FC = () => {
                 />
               </div>
               <div className="list-content">
-                {listDocs?.length === 0 &&
-                  <div style={{ width: "100%", alignItems: "center", justifyContent: "center", display: "flex" }}>
+                {listDocs?.length === 0 && (
+                  <div
+                    style={{
+                      width: "100%",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      display: "flex",
+                    }}
+                  >
                     <Empty description={"Không có dữ liệu"} />
-                  </div>}
-                {listDocs && listDocs?.length > 0 && listDocs?.map((doc) => {
-                  return (
-                    <RecentDocumentCard key={doc?.id} doc={doc} />
-                  );
-                })}
+                  </div>
+                )}
+                {listDocs &&
+                  listDocs?.length > 0 &&
+                  listDocs?.map((doc) => {
+                    return <RecentDocumentCard key={doc?.id} doc={doc} />;
+                  })}
               </div>
             </div>
             <div className="list-course">
               <div className="title-container">
                 <div className="list-title">Có thể bạn quan tâm</div>
-                <div className="view-all" onClick={() => {
-                  navigate("/may-you-care");
-                }}>
+                <div
+                  className="view-all"
+                  onClick={() => {
+                    navigate("/may-you-care");
+                  }}
+                >
                   Xem tất cả
                   <i style={{ fontSize: "12px" }} className="pi pi-chevron-right"></i>
                 </div>
               </div>
 
               <div className="list-course-content">
-                {listDocs?.length === 0 &&
-                  <div style={{ width: "100%", alignItems: "center", justifyContent: "center", display: "flex" }}>
-                    <Empty  description={"Không có dữ liệu"}/>
-                  </div>}
-                {listDocs && listDocs?.length > 0 && listDocs?.map((doc) => {
-                  return (
-                    <DocumentCard key={doc?.id} doc={doc} />
-                  );
-                })}
+                {listDocs?.length === 0 && (
+                  <div
+                    style={{
+                      width: "100%",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      display: "flex",
+                    }}
+                  >
+                    <Empty description={"Không có dữ liệu"} />
+                  </div>
+                )}
+                {listDocs &&
+                  listDocs?.length > 0 &&
+                  listDocs?.map((doc) => {
+                    return <DocumentCard key={doc?.id} doc={doc} />;
+                  })}
               </div>
             </div>
           </React.Fragment>
@@ -437,10 +466,14 @@ const HomePage: React.FC = () => {
               <div className="list-title">Học phần hay được tìm kiếm</div>
               {mostSearchSubject().map((subject) => {
                 return (
-                  <div key={subject.title} className="list-item-wrapper" onClick={() => {
-                    dispatch(updateSelectedFilteredCategory(subject?.cateCode));
-                    dispatch(updateSelectedCategoryName(subject?.title))
-                  }}>
+                  <div
+                    key={subject.title}
+                    className="list-item-wrapper"
+                    onClick={() => {
+                      dispatch(updateSelectedFilteredCategory(subject?.cateCode));
+                      dispatch(updateSelectedCategoryName(subject?.title));
+                    }}
+                  >
                     <i className="pi pi-folder"></i>
                     <div className="item-right">
                       {subject.title}
@@ -453,47 +486,69 @@ const HomePage: React.FC = () => {
             <div className="list-course">
               <div className="title-container">
                 <div className="list-title">Có thể bạn quan tâm</div>
-                <div className="view-all" onClick={() => {
-                  navigate("/may-you-care");
-                }}>
+                <div
+                  className="view-all"
+                  onClick={() => {
+                    navigate("/may-you-care");
+                  }}
+                >
                   Xem tất cả
                   <i style={{ fontSize: "12px" }} className="pi pi-chevron-right"></i>
                 </div>
               </div>
 
               <div className="list-course-content">
-                {listDocs?.length === 0 &&
-                  <div style={{ width: "100%", alignItems: "center", justifyContent: "center", display: "flex" }}>
+                {listDocs?.length === 0 && (
+                  <div
+                    style={{
+                      width: "100%",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      display: "flex",
+                    }}
+                  >
                     <Empty description={"Không có dữ liệu"} />
-                  </div>}
-                {listDocs && listDocs?.length > 0 && listDocs?.map((doc) => {
-                  return (
-                    <DocumentCard key={doc?.id} doc={doc} />
-                  );
-                })}
+                  </div>
+                )}
+                {listDocs &&
+                  listDocs?.length > 0 &&
+                  listDocs?.map((doc) => {
+                    return <DocumentCard key={doc?.id} doc={doc} />;
+                  })}
               </div>
             </div>
             <div className="list-last-seen-document">
               <div className="title-container">
                 <div className="list-title">Được xem gần đây</div>
-                <div className="view-all" onClick={() => {
-                  navigate("/list-recent-docs");
-                }}>
+                <div
+                  className="view-all"
+                  onClick={() => {
+                    navigate("/list-recent-docs");
+                  }}
+                >
                   Xem tất cả
                   <i style={{ fontSize: "12px" }} className="pi pi-chevron-right"></i>
                 </div>
               </div>
               <div className="list-content">
-                {recentDocs?.length === 0 &&
-                  <div style={{ width: "100%", alignItems: "center", justifyContent: "center", display: "flex" }}>
+                {recentDocs?.length === 0 && (
+                  <div
+                    style={{
+                      width: "100%",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      display: "flex",
+                    }}
+                  >
                     <Empty description={"Không có dữ liệu"} />
-                  </div>}
+                  </div>
+                )}
 
-                {recentDocs && recentDocs?.length > 0 && recentDocs?.map((doc) => {
-                  return (
-                    <RecentDocumentCard key={doc?.document?.id} doc={doc?.document} />
-                  );
-                })}
+                {recentDocs &&
+                  recentDocs?.length > 0 &&
+                  recentDocs?.map((doc) => {
+                    return <RecentDocumentCard key={doc?.document?.id} doc={doc?.document} />;
+                  })}
               </div>
             </div>
           </React.Fragment>

@@ -6,6 +6,8 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { AppRoute } from "../../../models/enums/AppRoute";
 import { Menu } from "primereact/menu";
 import useAuth from "../../../hooks/useAuth.ts";
+import { useAppDispatch } from "../../../store/Store.ts";
+import { resetHomeState } from "../../../store/slices/HomeSlice.ts";
 
 interface ISideNavButton {
   title: string;
@@ -18,24 +20,29 @@ const SideNavigationBar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { signOut, user } = useAuth();
+  const dispatch = useAppDispatch();
 
   const menuLeft = useRef<any>(null);
   const items = [
     {
       label: "Đăng xuất",
       icon: "pi pi-sign-out",
-      command: signOut
-    }
+      command: signOut,
+    },
   ];
 
   const sideNavButtonList: ISideNavButton[] = [
     {
       title: "Trang chủ",
       iconName: "pi-home",
-      isFocused: location.pathname === AppRoute.HomePage || location.pathname.includes("/may-you-care") || location.pathname.includes("/recent"),
+      isFocused:
+        location.pathname === AppRoute.HomePage ||
+        location.pathname.includes("/may-you-care") ||
+        location.pathname.includes("/recent"),
       onNavigate: () => {
         navigate(AppRoute.HomePage);
-      }
+        dispatch(resetHomeState());
+      },
     },
     {
       title: "Tài liệu môn học",
@@ -43,7 +50,7 @@ const SideNavigationBar = () => {
       isFocused: location.pathname.includes(AppRoute.SubjectDocs),
       onNavigate: () => {
         // navigate(`${AppRoute.SubjectDocs}/TruongCNTT/12`);
-      }
+      },
     },
     {
       title: "Tài liệu yêu thích",
@@ -51,15 +58,14 @@ const SideNavigationBar = () => {
       isFocused: location.pathname.includes(AppRoute.FavoriteDocs),
       onNavigate: () => {
         // navigate(AppRoute.FavoriteDocs);
-      }
+      },
     },
     {
       title: "Chương trình đào tạo",
       iconName: "pi-bars",
       isFocused: false,
-      onNavigate: () => {
-      }
-    }
+      onNavigate: () => {},
+    },
   ];
 
   return (

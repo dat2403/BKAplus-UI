@@ -1,13 +1,13 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 export interface HomeState {
-  selectedCategory?: number
-  selectedCategoryName?: string
+  selectedCategory?: number;
+  selectedCategoryName?: string;
 }
 
 const initialState: HomeState = {
   selectedCategory: undefined,
-  selectedCategoryName: undefined
+  selectedCategoryName: undefined,
 };
 
 export const homeSlice = createSlice({
@@ -15,20 +15,17 @@ export const homeSlice = createSlice({
   initialState,
   reducers: {
     updateSelectedFilteredCategory: (state, action: PayloadAction<number>) => {
-      state.selectedCategory = action.payload
+      state.selectedCategory = action.payload;
     },
     updateSelectedCategoryName: (state, action: PayloadAction<string>) => {
-      state.selectedCategoryName = action.payload
+      state.selectedCategoryName = action.payload;
     },
-    resetHomeState: () => initialState
+    resetHomeState: () => initialState,
   },
 });
 
-export const {
-  updateSelectedFilteredCategory,
-  updateSelectedCategoryName,
-  resetHomeState
-} = homeSlice.actions;
+export const { updateSelectedFilteredCategory, updateSelectedCategoryName, resetHomeState } =
+  homeSlice.actions;
 
 const homeReducer = homeSlice.reducer;
 

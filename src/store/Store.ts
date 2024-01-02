@@ -7,6 +7,7 @@ import AuthReducer from "./slices/AuthSlice.ts";
 import TabsReducer from "./slices/TabsSlice.ts";
 import uploadFileReducer from "./slices/UploadFileSlice.ts";
 import homeReducer from "./slices/HomeSlice.ts";
+import modalReducer from "./slices/ModalSlice.ts";
 
 const reducersToPersist: string[] = ["auth"];
 
@@ -20,7 +21,8 @@ const rootReducer = combineReducers({
   auth: AuthReducer,
   tabs: TabsReducer,
   uploadFile: uploadFileReducer,
-  home: homeReducer
+  home: homeReducer,
+  model: modalReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
