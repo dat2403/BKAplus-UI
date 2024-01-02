@@ -84,7 +84,7 @@ const DocDetailsPage: React.FC = () => {
         setTotalReacts(res?.data?.userReactDocuments);
         if (res?.data?.evidence_url) {
           const base64Url = await getBase64(res?.data?.evidence_url);
-          // setEvidenceUrl(base64Url);
+          setEvidenceUrl(base64Url);
           console.log(base64Url);
         }
         if (res?.data?.is_verified === true) {
