@@ -57,13 +57,14 @@
       align-items: flex-start;
       border-radius: 10px;
       width: 280px;
-      height: 400px;
+      min-height: 400px;
       border-radius: 10px;
       border: 1px solid var(--gray-200);
       cursor: pointer;
 
       .rpv-thumbnail__cover-image {
         border-radius: 8px;
+        height: 380px;
       }
 
       &:hover {
