@@ -2,10 +2,8 @@ import { InputText } from "primereact/inputtext";
 import React, { useState } from "react";
 import "./HomePage.scss";
 import { useMockData } from "../../shared/utility/useMockData";
-import { Chip } from "primereact/chip";
 import { useUtils } from "../../shared/utility/Util.ts";
 import { useNavigate } from "react-router-dom";
-import { AppRoute } from "../../models/enums/AppRoute.ts";
 import usePageState from "../../hooks/usePageState.ts";
 import { Dropdown } from "primereact/dropdown";
 import { Button } from "primereact/button";
@@ -26,8 +24,8 @@ import RecentDocumentCard from "./RecentDocumentCard.tsx";
 import { updateSelectedFilteredCategory } from "../../store/slices/HomeSlice.ts";
 
 const HomePage: React.FC = () => {
-  const { mostSearchSubject, defaultThumbnail } = useMockData();
-  const { getPercentageOfLikes, removeEmptyAndUndefinedParams } = useUtils();
+  const { mostSearchSubject } = useMockData();
+  const {  removeEmptyAndUndefinedParams } = useUtils();
   const navigate = useNavigate();
   const { repository } = usePageState();
   const [listDocs, setListDocs] = useState<any[]>([]);
@@ -404,35 +402,7 @@ const HomePage: React.FC = () => {
                   </div>}
                 {listDocs && listDocs?.length > 0 && listDocs?.map((doc) => {
                   return (
-                    <div
-                      key={doc?.id}
-                      className="doc-card"
-                      onClick={() => {
-                        navigate(`${AppRoute.SubjectDocs}/TruongCNTT/${doc?.id}`);
-                      }}
-                    >
-                      <img
-                        className="thumbnail"
-                        src={doc?.thumbnail ?? defaultThumbnail}
-                        alt="last-seen-img"
-                      />
-                      <div className="doc-text-content">
-                        <div className="doc-title">{doc?.title}</div>
-                        <div className={"tags-container"}>
-                          {doc?.categories
-                            ?.slice(0, 2)
-                            .map((cate: any) => <Chip key={cate?.id} label={cate?.name} />)}
-                        </div>
-                      </div>
-                      <div className="like-container">
-                        <Chip
-                          icon={"pi pi-thumbs-up-fill"}
-                          label={`${getPercentageOfLikes(doc?.liked, doc?.disliked).toString()}% (${
-                            doc?.liked ?? 100
-                          })`}
-                        />
-                      </div>
-                    </div>
+                    <RecentDocumentCard key={doc?.id} doc={doc} />
                   );
                 })}
               </div>
