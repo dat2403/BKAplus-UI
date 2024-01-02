@@ -87,8 +87,6 @@ const DocDetailsPage: React.FC = () => {
       if (params?.docId) {
         const res = await repository.getDocDetails(params.docId);
         setData(res?.data);
-
-        console.log("Hello", res.data);
         setTotalReacts(res?.data?.userReactDocuments);
         if (res?.data?.evidence_url) {
           const base64Url = await getBase64(`${AppConfig.baseURL}/files/${res?.data?.evidence_url}`);
