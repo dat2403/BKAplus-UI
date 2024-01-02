@@ -64,12 +64,12 @@ const DocDetailsPage: React.FC = () => {
     { key: "Mô tả môn học", value: data?.description }
   ];
 
-  function getBase64(url: string) {
-    return axios
+   const getBase64 = async (url: string) => {
+    const response = await axios
       .get(url, {
         responseType: "arraybuffer"
-      })
-      .then(response => Buffer.from(response.data, "binary").toString("base64"));
+      });
+    return Buffer.from(response.data, "binary").toString("base64");
   }
 
   React.useEffect(() => {
@@ -84,7 +84,8 @@ const DocDetailsPage: React.FC = () => {
         setTotalReacts(res?.data?.userReactDocuments);
         if (res?.data?.evidence_url) {
           const base64Url = await getBase64(res?.data?.evidence_url);
-          setEvidenceUrl(base64Url);
+          // setEvidenceUrl(base64Url);
+          console.log(base64Url);
         }
         if (res?.data?.is_verified === true) {
           setIsDocVerified(res?.data?.is_verified as boolean);
