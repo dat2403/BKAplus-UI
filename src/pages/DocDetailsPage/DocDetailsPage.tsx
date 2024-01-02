@@ -29,6 +29,7 @@ import {
 } from "../../store/slices/HomeSlice.ts";
 import SeeMoreComment from "./SeeMoreComment.tsx";
 import Assets from "../../assets/Assets.ts";
+import axios from "axios";
 
 const DocDetailsPage: React.FC = () => {
   const items = [{ label: "SOICT" }, { label: "Lập trình mạng" }];
@@ -50,10 +51,11 @@ const DocDetailsPage: React.FC = () => {
   const toastRef = React.useRef<Toast>(null);
 
   const reactOfThisUser = totalReacts?.find(react => react?.author?.id === user?.user?.id);
-  const isUserLike = reactOfThisUser?.vote === true
-  const isUserDislike = reactOfThisUser?.vote === false
-  const dispatch = useAppDispatch()
-  const navigate = useNavigate()
+  const isUserLike = reactOfThisUser?.vote === true;
+  const isUserDislike = reactOfThisUser?.vote === false;
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+  const [evidenceUrl, setEvidenceUrl] = React.useState("");
 
   const detailProperties = [
     { key: "Môn học", value: data?.subject?.name },
@@ -62,9 +64,17 @@ const DocDetailsPage: React.FC = () => {
     { key: "Mô tả môn học", value: data?.description }
   ];
 
+  function getBase64(url: string) {
+    return axios
+      .get(url, {
+        responseType: "arraybuffer"
+      })
+      .then(response => Buffer.from(response.data, "binary").toString("base64"));
+  }
+
   React.useEffect(() => {
-    dispatch(resetHomeState())
-  }, [])
+    dispatch(resetHomeState());
+  }, []);
   const fetchDocDetailsData = async () => {
     try {
       setLoading(true);
@@ -72,6 +82,10 @@ const DocDetailsPage: React.FC = () => {
         const res = await repository.getDocDetails(params.docId);
         setData(res?.data);
         setTotalReacts(res?.data?.userReactDocuments);
+        if (res?.data?.evidence_url) {
+          const base64Url = await getBase64(res?.data?.evidence_url);
+          setEvidenceUrl(base64Url);
+        }
         if (res?.data?.is_verified === true) {
           setIsDocVerified(res?.data?.is_verified as boolean);
         }
@@ -313,10 +327,10 @@ const DocDetailsPage: React.FC = () => {
                   <div className={"tags-container"}>
                     {data?.categories?.map((cate: any) => (
                       <Chip key={cate?.id} label={cate?.name} onClick={() => {
-                        dispatch(updateSelectedFilteredCategory(cate?.id))
-                        dispatch(updateSelectedCategoryName(cate?.name))
-                        navigate("/")
-                      }}/>
+                        dispatch(updateSelectedFilteredCategory(cate?.id));
+                        dispatch(updateSelectedCategoryName(cate?.name));
+                        navigate("/");
+                      }} />
                     ))}
                   </div>
                 </div>
@@ -335,8 +349,8 @@ const DocDetailsPage: React.FC = () => {
                   width: "100%",
                   height: "250px",
                   objectFit: "contain",
-                  marginTop: "12px",
-                }} alt={""} src={`${AppConfig.baseURL}/files/${data?.evidence_url}`}/>}
+                  marginTop: "12px"
+                }} alt={""} src={evidenceUrl} />}
               </div>
             </div>
             <div className="comment-container">
@@ -352,7 +366,7 @@ const DocDetailsPage: React.FC = () => {
                         severity={isUserLike ? "success" : "secondary"}
                         aria-label="Like"
                         onClick={() => {
-                          onHandleReact(true)
+                          onHandleReact(true);
                         }}
                       />
                       <Button
@@ -361,7 +375,7 @@ const DocDetailsPage: React.FC = () => {
                         severity={isUserDislike ? "danger" : "secondary"}
                         aria-label="Dislike"
                         onClick={() => {
-                          onHandleReact(false)
+                          onHandleReact(false);
                         }}
                       />
                     </div>
@@ -392,7 +406,7 @@ const DocDetailsPage: React.FC = () => {
                   </div>
                 </div>
                 <div className="right">
-                  {listComment?.map(comment => (<SeeMoreComment key={comment?.id} comment={comment}/>))}
+                  {listComment?.map(comment => (<SeeMoreComment key={comment?.id} comment={comment} />))}
                 </div>
               </div>
             </div>
