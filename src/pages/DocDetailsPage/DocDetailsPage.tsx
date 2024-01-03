@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { BreadCrumb } from "primereact/breadcrumb";
 import "./DocDetailsPage.scss";
 import { Button } from "primereact/button";
@@ -28,6 +28,7 @@ import {
 } from "../../store/slices/HomeSlice.ts";
 import SeeMoreComment from "./SeeMoreComment.tsx";
 import Assets from "../../assets/Assets.ts";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import axios from "axios";
 
 const DocDetailsPage: React.FC = () => {
@@ -55,6 +56,13 @@ const DocDetailsPage: React.FC = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const [evidenceUrl, setEvidenceUrl] = React.useState("");
+
+  const likeRef = useRef<HTMLDivElement>(null);
+  const navigateToLikeArea = () => {
+    if (likeRef && likeRef.current) {
+      likeRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }
 
   const detailProperties = [
     { key: "Môn học", value: data?.subject?.name },
@@ -276,7 +284,7 @@ const DocDetailsPage: React.FC = () => {
                       severity={isUserLike ? "success" : "secondary"}
                       aria-label="Like"
                       onClick={() => {
-                        onHandleReact(true);
+                        navigateToLikeArea()
                       }}
                     />
                     <div className="like-text">{totalReacts?.filter(react => react?.vote === true)?.length}</div>
@@ -288,7 +296,7 @@ const DocDetailsPage: React.FC = () => {
                       severity={isUserDislike ? "danger" : "secondary"}
                       aria-label="Like"
                       onClick={() => {
-                        onHandleReact(false);
+                        navigateToLikeArea()
                       }}
                     />
                     <div className="dislike-text">{totalReacts?.filter(react => react?.vote === false)?.length}</div>
@@ -365,7 +373,7 @@ const DocDetailsPage: React.FC = () => {
                 <div className="left">
                   <div className="feedback">
                     <div className="title">Đánh giá tài liệu này</div>
-                    <div className="react-wrapper">
+                    <div className="react-wrapper" ref={likeRef}>
                       <Button
                         icon="pi pi-thumbs-up-fill"
                         rounded

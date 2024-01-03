@@ -31,6 +31,7 @@ import { modalActions } from "../../store/slices/ModalSlice.ts";
 
 const HomePage: React.FC = () => {
   const { mostSearchSubject } = useMockData();
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { removeEmptyAndUndefinedParams } = useUtils();
   const navigate = useNavigate();
   const { repository } = usePageState();
@@ -160,8 +161,10 @@ const HomePage: React.FC = () => {
         subject_id: selectedSubject,
         school_id: selectedSchool,
         keyword: filterKeyword,
+        semester_id: selectedSemester,
       };
-      const res = await repository.getAllDocs(removeEmptyAndUndefinedParams(params));
+
+      const res = await repository.getAllDocs(params);
       setIsSearched(true);
       const newDocsReverse = (res?.data?.data as any[])?.reverse()?.slice(0, 4);
       setListDocs(newDocsReverse);
