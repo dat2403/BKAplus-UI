@@ -76,6 +76,8 @@ const LoginPage: React.FC = () => {
             className="login-form"
             initialValues={{
               remember: true,
+              username: 'admin@gmail.com',
+              password: 12345678
             }}
             onFinish={onFinish}
           >
@@ -92,7 +94,7 @@ const LoginPage: React.FC = () => {
             >
               <Input
                 prefix={<UserOutlined className="site-form-item-icon" />}
-                placeholder="Email"
+                placeholder="admin@gmail.com"
               />
             </Form.Item>
 
@@ -110,7 +112,7 @@ const LoginPage: React.FC = () => {
               <Input
                 prefix={<LockOutlined className="site-form-item-icon" />}
                 type="password"
-                placeholder="Password"
+                placeholder="12345678"
               />
             </Form.Item>
 
