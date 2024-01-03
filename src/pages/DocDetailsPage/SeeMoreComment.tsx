@@ -36,9 +36,9 @@ const SeeMoreComment: React.FC<IProps> = ({ comment }) => {
         size="large"
         style={{ backgroundColor: "#2196F3", color: "#ffffff" }}
         shape="circle"
-        image={user?.user?.avatar}
+        image={comment?.author?.avatar}
       />
-      <div>{user?.user?.full_name}</div>
+      <div>{comment?.author?.full_name}</div>
     </div>
     <Button
       style={{ marginLeft: "10px" }}
@@ -66,7 +66,6 @@ const SeeMoreComment: React.FC<IProps> = ({ comment }) => {
       </>
     </div>
 
-    <div className="who-liked">3 người đã thích</div>
     <div className={"button-group"}>
       <Button label="Like" />
       <Button label="Report" severity="secondary" />
