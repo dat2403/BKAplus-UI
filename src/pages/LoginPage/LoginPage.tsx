@@ -77,7 +77,7 @@ const LoginPage: React.FC = () => {
             initialValues={{
               remember: true,
               username: 'admin@gmail.com',
-              password: 12345678
+              password: "12345678"
             }}
             onFinish={onFinish}
           >
