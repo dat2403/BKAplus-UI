@@ -16,13 +16,13 @@ const MayYouCarePage: React.FC = () => {
   const { defaultThumbnail } = useMockData();
   const { repository } = usePageState();
   const [first, setFirst] = React.useState(0);
-  const [rows, setRows] = React.useState(10);
+  const [rows, setRows] = React.useState(8);
   const totalCount = React.useRef(0);
 
   const fetchAllDocs = async () => {
     try {
       const params = {
-        page: first,
+        page: first / rows,
         per_page: rows
       };
       const res = await repository.getAllDocs(params);
@@ -69,7 +69,7 @@ const MayYouCarePage: React.FC = () => {
         first={first}
         rows={rows}
         totalRecords={totalCount.current} // Need BE res have total records count to count page
-        rowsPerPageOptions={[5, 10, 20, 30]}
+        rowsPerPageOptions={[8, 16, 24, 32]}
         onPageChange={onPageChange} />
     </div>
   );
